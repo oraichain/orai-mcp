@@ -4,7 +4,11 @@
 
 > 🏗️ Built and maintained by [Oraichain Labs](https://github.com/oraichain)
 
-A Model Context Protocol (MCP) server that provides onchain tools for AI applications like Claude Desktop and Cursor, allowing them to interact with multiple blockchain networks seamlessly.
+A comprehensive toolkit for building and deploying AI agents with blockchain capabilities. This monorepo includes:
+
+- A Model Context Protocol (MCP) server for AI applications
+- Agent development tools for blockchain interactions
+- Development kit for building custom AI agents
 
 ## About Oraichain Labs
 
@@ -25,17 +29,31 @@ Thanks goes to these wonderful people:
 
 ## Overview
 
-This MCP server extends any MCP client's capabilities by providing tools to interact with multiple blockchain networks:
+This project provides a complete suite of tools for AI-blockchain integration:
 
-- Retrieve wallet addresses across different chains
-- List wallet balances across networks
-- Transfer funds between wallets
-- Deploy smart contracts on any supported chain
-- Interact with DeFi protocols across chains
-- Call contract functions on any supported network
+### MCP Server
+
+- Interact with multiple blockchain networks
+- Retrieve wallet addresses and balances
+- Transfer funds and manage tokens
+- Deploy and interact with smart contracts
 - Bridge assets between networks
 
-The server is built using TypeScript and supports multiple blockchain networks through a unified interface.
+### Agent Tools
+
+- Ready-to-use blockchain interaction tools
+- Multi-chain support out of the box
+- DeFi protocol integrations
+- Secure transaction handling
+
+### Agent Development Kit
+
+- Build custom AI agents with blockchain capabilities
+- Extensible interfaces and types
+- Best practices and examples
+- Testing utilities
+
+The entire toolkit is built using TypeScript and supports multiple blockchain networks through a unified interface.
 
 ## Prerequisites
 
