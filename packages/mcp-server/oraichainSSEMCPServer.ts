@@ -8,7 +8,14 @@ import { oraichainRpcUrl, serverPort } from "./config";
 import HyperExpress from "hyper-express";
 import cors from "cors";
 import { version } from "./package.json";
-import { OraichainBalanceTool } from "@oraichain/agent-tools";
+import {
+  OraichainBalanceTool,
+  OraichainBroadcastSignDocTool,
+  OraichainBroadcastTxFromBytesTool,
+  OraichainBroadcastTxTool,
+  OraichainDelegationTool,
+  OraichainTokenTransferTool,
+} from "@oraichain/agent-tools";
 
 const app = new HyperExpress.Server({ fast_buffers: true });
 const port = Number(serverPort);
@@ -147,7 +154,14 @@ app.post("/messages", async (req, res) => {
 app.listen(port, "0.0.0.0", async () => {
   try {
     const agent = await OraichainAgentKit.connect(oraichainRpcUrl);
-    const ORAICHAIN_ACTIONS = [new OraichainBalanceTool(agent)]; // We'll set the agent later
+    const ORAICHAIN_ACTIONS = [
+      new OraichainBalanceTool(agent),
+      new OraichainDelegationTool(agent),
+      new OraichainTokenTransferTool(agent),
+      new OraichainBroadcastTxTool(agent),
+      new OraichainBroadcastTxFromBytesTool(agent),
+      new OraichainBroadcastSignDocTool(agent),
+    ];
 
     server = createMcpServer(ORAICHAIN_ACTIONS as any, {
       name: "oraichain-mcp-server",
