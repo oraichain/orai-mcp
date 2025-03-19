@@ -41,7 +41,7 @@ HyperExpress.Response.prototype.writeHead = function (
   return this;
 };
 
-const transports: Map<string, SSEServerTransport> = new Map();
+const sessions: Record<string, SSEServerTransport> = {};
 let server: McpServer;
 
 app.use(
@@ -74,7 +74,6 @@ app.get("/version", async (req, res) => {
 });
 
 app.get("/sse", async (req, res) => {
-
   try {
     if (!server) {
       throw new Error("Server not initialized");
@@ -82,14 +81,16 @@ app.get("/sse", async (req, res) => {
 
     const connectionId = Date.now().toString();
     const transport = new SSEServerTransport("/messages", res as any);
-    transports.set(connectionId, transport);
 
     await server.connect(transport);
-    // res.write(`data: {"connectionId": "${connectionId}"}\n\n`);
     console.log(`SSE connection established: ${connectionId}`);
+    const sessionId = transport.sessionId;
+    if (sessionId) {
+      sessions[sessionId] = transport;
+    }
 
     req.on("close", () => {
-      transports.delete(connectionId);
+      delete sessions[sessionId];
       console.log(`Connection ${connectionId} closed`);
     });
   } catch (error) {
@@ -99,10 +100,17 @@ app.get("/sse", async (req, res) => {
 });
 
 app.post("/messages", async (req, res) => {
-  const transport = Array.from(transports.values())[0];
-  if (!transport) {
-    console.error("No active transport");
-    return res.status(503).send("No active SSE transport");
+  const sessionId = req.query.sessionId as string;
+  if (!sessionId) {
+    return res.status(400).send("Missing sessionId parameter");
+  }
+
+  const session = sessions[sessionId];
+
+  if (!session?.handlePostMessage) {
+    return res
+      .status(503)
+      .send(`No active SSE connection for session ${sessionId}`);
   }
 
   // Access the parsed body from express.json()
@@ -127,7 +135,7 @@ app.post("/messages", async (req, res) => {
   }) as IncomingMessage;
 
   try {
-    await transport.handlePostMessage(newReq, res as any);
+    await session.handlePostMessage(newReq, res as any);
   } catch (error) {
     console.error("Error in POST /messages:", error);
     res
