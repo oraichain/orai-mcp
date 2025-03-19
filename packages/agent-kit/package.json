@@ -1,7 +1,11 @@
 {
   "name": "@oraichain/agent-kit",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
   "dependencies": {
     "@cosmjs/amino": "^0.32.4",
     "@cosmjs/cosmwasm-stargate": "^0.32.4",

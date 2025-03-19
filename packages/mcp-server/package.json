@@ -1,5 +1,6 @@
 {
   "name": "@oraichain/mcp-server",
+  "version": "0.0.1",
   "description": "Oraichain Multichain MCP Server",
   "repository": "https://github.com/oraichain/multichain-mcp.git",
   "keywords": [
@@ -19,8 +20,15 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",
+    "@types/cors": "^2.8.17",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "hyper-express": "^6.17.3",
     "langchain": "^0.3.19",
-    "zod": "^3.24.2"
+    "winston": "^3.17.0",
+    "winston-transport": "^4.9.0",
+    "zod": "^3.24.2",
+    "@oraichain/agent-tools": "workspace:*"
   },
   "devDependencies": {
     "eslint": "^9.21.0",
