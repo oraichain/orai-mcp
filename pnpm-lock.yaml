@@ -44,6 +44,9 @@ importers:
       '@cosmjs/tendermint-rpc':
         specifier: 0.32.4
         version: 0.32.4
+      '@cosmjs/utils':
+        specifier: ^0.33.1
+        version: 0.33.1
       '@oraichain/common':
         specifier: ^1.2.10
         version: 1.2.10(starknet@6.23.1)
@@ -257,6 +260,9 @@ packages:
 
   '@cosmjs/utils@0.32.4':
     resolution: {integrity: sha512-D1Yc+Zy8oL/hkUkFUL/bwxvuDBzRGpc4cF7/SkdhxX4iHpSLgdOuTt1mhCh9+kl6NQREy9t7SYZ6xeW5gFe60w==}
+
+  '@cosmjs/utils@0.33.1':
+    resolution: {integrity: sha512-UnLHDY6KMmC+UXf3Ufyh+onE19xzEXjT4VZ504Acmk4PXxqyvG4cCPprlKUFnGUX7f0z8Or9MAOHXBx41uHBcg==}
 
   '@dabh/diagnostics@2.0.3':
     resolution: {integrity: sha512-hrlQOIi7hAfzsMqlGSFyVucrx38O+j6wiGOf//H2ecvIEqYN4ADBSS2iLMh5UFyDunCNniUIPk/q3riFv45xRA==}
@@ -3285,6 +3291,8 @@ snapshots:
       - utf-8-validate
 
   '@cosmjs/utils@0.32.4': {}
+
+  '@cosmjs/utils@0.33.1': {}
 
   '@dabh/diagnostics@2.0.3':
     dependencies:

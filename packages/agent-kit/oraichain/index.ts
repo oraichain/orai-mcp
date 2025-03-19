@@ -27,13 +27,16 @@ import {
   setupBankExtension,
   setupMintExtension,
   setupStakingExtension,
+  setupTxExtension,
   StakingExtension,
-  StdFee,
+  TxExtension,
 } from "@cosmjs/stargate";
-import { Binary } from "@oraichain/common";
+import { Binary, ORAI, OraiCommon } from "@oraichain/common";
 import { Comet38Client } from "@cosmjs/tendermint-rpc";
 import { SignDoc, TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import {
+  Secp256k1Pubkey,
+  StdFee,
   StdSignDoc,
   StdSignature,
   encodeSecp256k1Pubkey,
@@ -44,6 +47,7 @@ import { Any } from "cosmjs-types/google/protobuf/any";
 import { Int53 } from "@cosmjs/math";
 import { PubKey } from "cosmjs-types/cosmos/crypto/secp256k1/keys";
 import { fromBase64 } from "@cosmjs/encoding";
+import { assertDefined } from "@cosmjs/utils";
 
 type PubkeyType =
   | "/ethermint.crypto.v1.ethsecp256k1.PubKey" // for ethermint txs
@@ -65,7 +69,8 @@ export class OraichainAgentKit {
       BankExtension &
       StakingExtension &
       WasmExtension &
-      MintExtension,
+      MintExtension &
+      TxExtension,
     public readonly registry = new Registry([
       ...defaultRegistryTypes,
       ...wasmTypes,
@@ -84,7 +89,8 @@ export class OraichainAgentKit {
       setupBankExtension,
       setupStakingExtension,
       setupWasmExtension,
-      setupMintExtension
+      setupMintExtension,
+      setupTxExtension
     );
     return new OraichainAgentKit(client, queryClient);
   }
@@ -103,7 +109,6 @@ export class OraichainAgentKit {
     toAddress: string,
     amount: Coin
   ) {
-    const stdFee = calculateFee(1000000, GasPrice.fromString("0.002orai"));
     const signDoc = await this.buildSignDoc(
       senderAddress,
       publickey,
@@ -117,7 +122,7 @@ export class OraichainAgentKit {
           },
         },
       ],
-      stdFee,
+      "auto",
       ""
     );
     return {
@@ -138,7 +143,7 @@ export class OraichainAgentKit {
     senderAddress: string,
     publicKey: string,
     messages: readonly EncodeObject[],
-    fee: StdFee,
+    stdFee: StdFee | "auto",
     memo: string = "",
     timeoutHeight?: bigint
   ) {
@@ -146,7 +151,43 @@ export class OraichainAgentKit {
       await this.client.getSequence(senderAddress);
     const chainId = await this.client.getChainId();
     const pubkeyBuffer = Buffer.from(publicKey, "base64");
-    const pubkey = encodePubkey(encodeSecp256k1Pubkey(pubkeyBuffer));
+    const secp256k1Pubkey = encodeSecp256k1Pubkey(pubkeyBuffer);
+    const pubkey = encodePubkey(secp256k1Pubkey);
+
+    // simulate the tx
+    let fee: StdFee;
+    if (stdFee === "auto") {
+      const gasUsed = await this.simulate(
+        senderAddress,
+        secp256k1Pubkey,
+        messages,
+        memo
+      );
+      const common = await OraiCommon.initializeFromGitRaw({
+        chainIds: ["Oraichain"],
+      });
+      const chainInfo = common.chainInfos.cosmosChains.find(
+        (chain) => chain.chainId === "Oraichain"
+      );
+      if (!chainInfo) {
+        throw new Error("Oraichain chain info not found");
+      }
+      const feeCurrency = chainInfo.feeCurrencies?.[0];
+      if (!feeCurrency) {
+        throw new Error("Oraichain fee currency not found");
+      }
+      fee = calculateFee(
+        gasUsed,
+        GasPrice.fromString(
+          `${
+            feeCurrency.gasPriceStep ? feeCurrency.gasPriceStep.low : "0.001"
+          }${ORAI}`
+        )
+      );
+    } else {
+      fee = stdFee;
+    }
+
     // Create a proper TxBody object
     const txBodyObj = {
       typeUrl: "/cosmos.tx.v1beta1.TxBody",
@@ -161,7 +202,7 @@ export class OraichainAgentKit {
     const txBodyBytes = this.registry.encode(txBodyObj);
 
     // Handle fee based on its type
-    const gasLimit = Int53.fromString(fee.gas.toString()).toNumber();
+    const gasLimit = Int53.fromString(fee.gas).toNumber();
     const authInfoBytes = makeAuthInfoBytes(
       [{ pubkey, sequence }],
       fee.amount,
@@ -269,5 +310,23 @@ export class OraichainAgentKit {
     });
     const txBytes = TxRaw.encode(txRaw).finish();
     return this.client.broadcastTxSync(txBytes);
+  }
+
+  async simulate(
+    senderAddress: string,
+    senderPubkey: Secp256k1Pubkey,
+    messages: readonly EncodeObject[],
+    memo: string
+  ) {
+    const anyMsgs = messages.map((m) => this.registry.encodeAsAny(m));
+    const { sequence } = await this.client.getSequence(senderAddress);
+    const { gasInfo } = await this.queryClient.tx.simulate(
+      anyMsgs,
+      memo,
+      senderPubkey,
+      sequence
+    );
+    assertDefined(gasInfo);
+    return Int53.fromString(gasInfo.gasUsed.toString()).toNumber();
   }
 }
