@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "Oraichain AI Agent Tools",
   "main": "dist/index.js",
-  "private": true,
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
