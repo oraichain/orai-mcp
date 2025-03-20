@@ -41,3 +41,84 @@ export class GetDelegationsTool extends Tool {
     }
   }
 }
+
+if (import.meta.vitest) {
+  const { describe, it, expect, vi } = import.meta.vitest;
+
+  describe("GetDelegationsTool", () => {
+    const mockDelegatorDelegations = vi.fn();
+    const mockOraichainKit = {
+      queryClient: {
+        staking: {
+          delegatorDelegations: mockDelegatorDelegations,
+        },
+      },
+    } as unknown as OraichainAgentKit;
+
+    const tool = new GetDelegationsTool(mockOraichainKit);
+
+    it("should successfully get delegations", async () => {
+      const input = {
+        delegatorAddress: "orai1...",
+      };
+
+      const mockResponse = {
+        delegationResponses: [
+          {
+            delegation: {
+              delegatorAddress: input.delegatorAddress,
+              validatorAddress: "oraivaloper1...",
+              shares: "1000000",
+            },
+            balance: {
+              denom: "orai",
+              amount: "1000000",
+            },
+          },
+        ],
+      };
+
+      mockDelegatorDelegations.mockResolvedValueOnce(mockResponse);
+
+      const result = await tool.invoke(input);
+      const parsedResult = JSON.parse(result);
+
+      expect(parsedResult.status).toBe("success");
+      expect(parsedResult.data.delegations).toEqual(
+        mockResponse.delegationResponses
+      );
+      expect(mockDelegatorDelegations).toHaveBeenCalledWith(
+        input.delegatorAddress
+      );
+    });
+
+    it("should handle invalid input", async () => {
+      const input = {
+        // Missing required fields
+      };
+
+      try {
+        await tool.invoke(input);
+      } catch (error) {
+        expect(error.message).toContain(
+          "Received tool input did not match expected schema"
+        );
+      }
+    });
+
+    it("should handle query errors", async () => {
+      const input = {
+        delegatorAddress: "orai1...",
+      };
+
+      const errorMessage = "Failed to get delegations";
+      mockDelegatorDelegations.mockRejectedValueOnce(new Error(errorMessage));
+
+      const result = await tool.invoke(input);
+      const parsedResult = JSON.parse(result);
+
+      expect(parsedResult.status).toBe("error");
+      expect(parsedResult.message).toBe(errorMessage);
+    });
+  });
+}

@@ -132,3 +132,67 @@ export class OraichainBroadcastSignDocTool extends Tool {
     }
   }
 }
+
+if (import.meta.vitest) {
+  const { describe, it, expect, vi } = import.meta.vitest;
+
+  describe("BroadcastTools", () => {
+    const mockBroadcastTx = vi.fn();
+    const mockOraichainKit = {
+      broadcastTxSync: mockBroadcastTx,
+    } as unknown as OraichainAgentKit;
+
+    const tool = new OraichainBroadcastTxTool(mockOraichainKit);
+
+    it("should successfully broadcast a transaction", async () => {
+      const input = {
+        signedTx: "base64EncodedTxBytes",
+      };
+
+      const mockResponse = {
+        txHash: "hash123",
+        height: "100",
+        code: 0,
+        rawLog: "success",
+      };
+
+      mockBroadcastTx.mockResolvedValueOnce(mockResponse);
+
+      const result = await tool.invoke(input);
+      const parsedResult = JSON.parse(result);
+
+      expect(parsedResult.status).toBe("success");
+      expect(parsedResult.data.txHash).toEqual(mockResponse);
+      expect(mockBroadcastTx).toHaveBeenCalledWith(input.signedTx);
+    });
+
+    it("should handle invalid input", async () => {
+      const input = {
+        // Missing required fields
+      };
+
+      try {
+        await tool.invoke(input);
+      } catch (error) {
+        expect(error.message).toContain(
+          "Received tool input did not match expected schema"
+        );
+      }
+    });
+
+    it("should handle broadcast errors", async () => {
+      const input = {
+        signedTx: "base64EncodedTxBytes",
+      };
+
+      const errorMessage = "Failed to broadcast transaction";
+      mockBroadcastTx.mockRejectedValueOnce(new Error(errorMessage));
+
+      const result = await tool.invoke(input);
+      const parsedResult = JSON.parse(result);
+
+      expect(parsedResult.status).toBe("error");
+      expect(parsedResult.message).toBe(errorMessage);
+    });
+  });
+}

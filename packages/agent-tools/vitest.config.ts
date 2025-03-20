@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    include: ["**/delegateTool.ts"],
+    include: ["**/*.ts"],
+    exclude: ["**/index.ts", "node_modules/**", "dist/**", "**/vitest.config.ts"],
   },
 });

@@ -54,3 +54,85 @@ export class OraichainTokenTransferTool extends Tool {
     }
   }
 }
+
+if (import.meta.vitest) {
+  const { describe, it, expect, vi } = import.meta.vitest;
+
+  describe("TransferTool", () => {
+    const mockTransfer = vi.fn();
+    const mockOraichainKit = {
+      transfer: mockTransfer,
+    } as unknown as OraichainAgentKit;
+
+    const tool = new OraichainTokenTransferTool(mockOraichainKit);
+
+    it("should successfully create a transfer transaction", async () => {
+      const input = {
+        senderAddress: "orai1...",
+        recipient: "orai1...",
+        publicKey: "base64PublicKey",
+        amount: {
+          amount: "1000000",
+          denom: "orai",
+        },
+      };
+
+      const mockResponse = {
+        txHash: "hash123",
+        height: "100",
+        code: 0,
+        rawLog: "success",
+      };
+
+      mockTransfer.mockResolvedValueOnce(mockResponse);
+
+      const result = await tool.invoke(input);
+      const parsedResult = JSON.parse(result);
+
+      expect(parsedResult.status).toBe("success");
+      expect(parsedResult.data).toEqual(mockResponse);
+      expect(mockTransfer).toHaveBeenCalledWith(
+        input.senderAddress,
+        input.publicKey,
+        input.recipient,
+        input.amount
+      );
+    });
+
+    it("should handle invalid input", async () => {
+      const input = {
+        // Missing required fields
+        senderAddress: "orai1...",
+      };
+
+      try {
+        await tool.invoke(input);
+      } catch (error) {
+        expect(error.message).toContain(
+          "Received tool input did not match expected schema"
+        );
+      }
+    });
+
+    it("should handle transfer errors", async () => {
+      const input = {
+        senderAddress: "orai1...",
+        recipient: "orai1...",
+        publicKey: "base64PublicKey",
+        amount: {
+          amount: "1000000",
+          denom: "orai",
+        },
+      };
+
+      const errorMessage = "Failed to transfer";
+      mockTransfer.mockRejectedValueOnce(new Error(errorMessage));
+
+      const result = await tool.invoke(input);
+      const parsedResult = JSON.parse(result);
+
+      expect(parsedResult.status).toBe("error");
+      expect(parsedResult.message).toBe(errorMessage);
+    });
+  });
+}

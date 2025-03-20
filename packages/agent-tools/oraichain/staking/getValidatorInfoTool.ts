@@ -45,3 +45,118 @@ export class GetValidatorInfoTool extends Tool {
     }
   }
 }
+
+if (import.meta.vitest) {
+  const { describe, it, expect, vi } = import.meta.vitest;
+
+  describe("GetValidatorInfoTool", () => {
+    const mockValidator = vi.fn();
+    const mockValidatorCommission = vi.fn();
+    const mockOraichainKit = {
+      queryClient: {
+        staking: {
+          validator: mockValidator,
+        },
+        distribution: {
+          validatorCommission: mockValidatorCommission,
+        },
+      },
+    } as unknown as OraichainAgentKit;
+
+    const tool = new GetValidatorInfoTool(mockOraichainKit);
+
+    it("should successfully get validator info", async () => {
+      const input = {
+        validatorAddress: "oraivaloper1...",
+      };
+
+      const mockValidatorResponse = {
+        validator: {
+          operatorAddress: input.validatorAddress,
+          consensusPubkey: {
+            type: "tendermint/PubKeyEd25519",
+            value: "base64EncodedPublicKey",
+          },
+          jailed: false,
+          status: "BOND_STATUS_BONDED",
+          tokens: "1000000000",
+          delegatorShares: "1000000000.000000000000000000",
+          description: {
+            moniker: "Test Validator",
+            identity: "",
+            website: "",
+            securityContact: "",
+            details: "",
+          },
+          unbondingHeight: "0",
+          unbondingTime: "1970-01-01T00:00:00Z",
+          commission: {
+            commissionRates: {
+              rate: "0.100000000000000000",
+              maxRate: "0.200000000000000000",
+              maxChangeRate: "0.010000000000000000",
+            },
+            updateTime: "1970-01-01T00:00:00Z",
+          },
+          minSelfDelegation: "1",
+        },
+      };
+
+      const mockCommissionResponse = {
+        commission: {
+          commission: [
+            {
+              denom: "orai",
+              amount: "100000",
+            },
+          ],
+        },
+      };
+
+      mockValidator.mockResolvedValueOnce(mockValidatorResponse);
+      mockValidatorCommission.mockResolvedValueOnce(mockCommissionResponse);
+
+      const result = await tool.invoke(input);
+      const parsedResult = JSON.parse(result);
+
+      expect(parsedResult.status).toBe("success");
+      expect(parsedResult.data).toEqual({
+        validator: mockValidatorResponse.validator,
+        commission: mockCommissionResponse.commission,
+      });
+      expect(mockValidator).toHaveBeenCalledWith(input.validatorAddress);
+      expect(mockValidatorCommission).toHaveBeenCalledWith(
+        input.validatorAddress
+      );
+    });
+
+    it("should handle invalid input", async () => {
+      const input = {
+        // Missing required fields
+      };
+
+      try {
+        await tool.invoke(input);
+      } catch (error) {
+        expect(error.message).toContain(
+          "Received tool input did not match expected schema"
+        );
+      }
+    });
+
+    it("should handle query errors", async () => {
+      const input = {
+        validatorAddress: "oraivaloper1...",
+      };
+
+      const errorMessage = "Failed to get validator info";
+      mockValidator.mockRejectedValueOnce(new Error(errorMessage));
+
+      const result = await tool.invoke(input);
+      const parsedResult = JSON.parse(result);
+
+      expect(parsedResult.status).toBe("error");
+      expect(parsedResult.message).toBe(errorMessage);
+    });
+  });
+}

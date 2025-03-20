@@ -44,3 +44,67 @@ export class OraichainBalanceTool extends Tool {
     }
   }
 }
+
+if (import.meta.vitest) {
+  const { describe, it, expect, vi } = import.meta.vitest;
+
+  describe("BalanceTool", () => {
+    const mockGetBalance = vi.fn();
+    const mockOraichainKit = {
+      getBalance: mockGetBalance,
+    } as unknown as OraichainAgentKit;
+
+    const tool = new OraichainBalanceTool(mockOraichainKit);
+
+    it("should successfully get balance", async () => {
+      const input = {
+        address: "orai1...",
+        denom: "orai",
+      };
+
+      const mockResponse = {
+        amount: "1000000",
+        denom: "orai",
+      };
+
+      mockGetBalance.mockResolvedValueOnce(mockResponse);
+
+      const result = await tool.invoke(input);
+      const parsedResult = JSON.parse(result);
+
+      expect(parsedResult.status).toBe("success");
+      expect(parsedResult.data.coin).toEqual(mockResponse);
+      expect(mockGetBalance).toHaveBeenCalledWith(input.address, input.denom);
+    });
+
+    it("should handle invalid input", async () => {
+      const input = {
+        // Missing required fields
+      };
+
+      try {
+        await tool.invoke(input);
+      } catch (error) {
+        expect(error.message).toContain(
+          "Received tool input did not match expected schema"
+        );
+      }
+    });
+
+    it("should handle query errors", async () => {
+      const input = {
+        address: "orai1...",
+        denom: "orai",
+      };
+
+      const errorMessage = "Failed to get balance";
+      mockGetBalance.mockRejectedValueOnce(new Error(errorMessage));
+
+      const result = await tool.invoke(input);
+      const parsedResult = JSON.parse(result);
+
+      expect(parsedResult.status).toBe("error");
+      expect(parsedResult.message).toBe(errorMessage);
+    });
+  });
+}

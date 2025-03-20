@@ -1,5 +1,3 @@
-/// <reference types="vitest/importMeta" />
-
 import { Tool } from "langchain/tools";
 import { z } from "zod";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
