@@ -29,10 +29,15 @@ export class OraichainBalanceTool extends Tool {
         input.address,
         input.denom
       );
+      const amountAfterDecimals = +coin.amount / 10 ** 6;
+      const coinAfterDecimals = {
+        ...coin,
+        amount: amountAfterDecimals.toString(),
+      };
 
       return JSON.stringify({
         status: "success",
-        message: `Balance of ${input.address} is ${coin.amount}${coin.denom}`,
+        message: `Balance of ${input.address} is ${coinAfterDecimals.amount}${coinAfterDecimals.denom}`,
         data: { coin, address: input.address, denom: input.denom },
       });
     } catch (error: any) {
