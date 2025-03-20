@@ -180,8 +180,8 @@ importers:
         specifier: ^13.24.0
         version: 13.24.0
       language_models:
-        specifier: link:@langchain/core/language_models
-        version: link:@langchain/core/language_models
+        specifier: link:@langchain/core
+        version: link:@langchain/core
       typescript:
         specifier: ^5.8.2
         version: 5.8.2

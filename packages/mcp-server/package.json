@@ -45,7 +45,7 @@
     "cosmjs-types": "^0.9.0",
     "eslint": "^9.21.0",
     "globals": "^13.24.0",
-    "language_models": "link:@langchain/core/language_models",
+    "language_models": "link:@langchain/core",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.24.1"
   }

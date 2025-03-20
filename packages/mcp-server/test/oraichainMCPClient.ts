@@ -8,10 +8,8 @@ import {
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { ChatMistralAI } from "@langchain/mistralai";
 import "dotenv/config";
-import { DynamicTool } from "langchain/tools";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { z } from "zod";
 import { Runnable, RunnableToolLike } from "@langchain/core/runnables";
 import { BindToolsInput } from "@langchain/core/language_models/chat_models";
 import { DynamicJsonSchema, jsonSchemaToZod } from "./utils";
