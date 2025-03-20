@@ -5,7 +5,9 @@
   "main": "dist/index.js",
   "private": true,
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@cosmjs/amino": "^0.32.4",
@@ -13,6 +15,7 @@
     "@cosmjs/stargate": "^0.32.4",
     "@oraichain/agent-kit": "workspace:*",
     "langchain": "^0.3.19",
+    "vitest": "^3.0.9",
     "zod": "^3.24.2"
   },
   "devDependencies": {

@@ -13,7 +13,7 @@ import {
   OraichainBroadcastSignDocTool,
   OraichainBroadcastTxFromBytesTool,
   OraichainBroadcastTxTool,
-  OraichainDelegationTool,
+  DelegateTool,
   OraichainTokenTransferTool,
 } from "@oraichain/agent-tools";
 
@@ -156,7 +156,7 @@ app.listen(port, "0.0.0.0", async () => {
     const agent = await OraichainAgentKit.connect(oraichainRpcUrl);
     const ORAICHAIN_ACTIONS = [
       new OraichainBalanceTool(agent),
-      new OraichainDelegationTool(agent),
+      new DelegateTool(agent),
       new OraichainTokenTransferTool(agent),
       new OraichainBroadcastTxTool(agent),
       new OraichainBroadcastTxFromBytesTool(agent),
