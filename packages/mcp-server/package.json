@@ -20,6 +20,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",
+    "@oraichain/agent-kit": "workspace:*",
+    "@oraichain/agent-tools": "workspace:*",
     "@types/cors": "^2.8.17",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -27,12 +29,23 @@
     "langchain": "^0.3.19",
     "winston": "^3.17.0",
     "winston-transport": "^4.9.0",
-    "zod": "^3.24.2",
-    "@oraichain/agent-tools": "workspace:*"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@cosmjs/amino": "^0.32.4",
+    "@cosmjs/cosmwasm-stargate": "^0.32.4",
+    "@cosmjs/crypto": "^0.32.4",
+    "@cosmjs/encoding": "^0.32.4",
+    "@cosmjs/proto-signing": "^0.32.4",
+    "@cosmjs/stargate": "^0.32.4",
+    "@langchain/core": "^0.3.42",
+    "@langchain/langgraph": "^0.2.57",
+    "@langchain/mistralai": "^0.2.0",
+    "@oraichain/common": "^1.2.10",
+    "cosmjs-types": "^0.9.0",
     "eslint": "^9.21.0",
     "globals": "^13.24.0",
+    "language_models": "link:@langchain/core/language_models",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.24.1"
   }

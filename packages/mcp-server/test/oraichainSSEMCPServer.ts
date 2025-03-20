@@ -2,12 +2,12 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { Readable } from "stream";
 import { IncomingMessage } from "http";
-import { OraichainAgentKit } from "../agent-kit/oraichain";
-import { createMcpServer } from "./mcpServer";
-import { oraichainRpcUrl, serverPort } from "./config";
+import { OraichainAgentKit } from "@oraichain/agent-kit";
+import { createMcpServer } from "../src/mcpServer";
+import { oraichainRpcUrl, serverPort } from "../src/config";
 import HyperExpress from "hyper-express";
 import cors from "cors";
-import { version } from "./package.json";
+import { version } from "../package.json";
 import {
   OraichainBalanceTool,
   OraichainBroadcastSignDocTool,
