@@ -21,10 +21,12 @@ import {
   Coin,
   createDefaultAminoConverters,
   defaultRegistryTypes,
+  DistributionExtension,
   GasPrice,
   MintExtension,
   QueryClient,
   setupBankExtension,
+  setupDistributionExtension,
   setupMintExtension,
   setupStakingExtension,
   setupTxExtension,
@@ -70,6 +72,7 @@ export class OraichainAgentKit {
       StakingExtension &
       WasmExtension &
       MintExtension &
+      DistributionExtension &
       TxExtension,
     public readonly registry = new Registry([
       ...defaultRegistryTypes,
@@ -90,7 +93,8 @@ export class OraichainAgentKit {
       setupStakingExtension,
       setupWasmExtension,
       setupMintExtension,
-      setupTxExtension
+      setupTxExtension,
+      setupDistributionExtension
     );
     return new OraichainAgentKit(client, queryClient);
   }

@@ -8,6 +8,9 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@cosmjs/amino": "^0.32.4",
+    "@cosmjs/proto-signing": "^0.32.4",
+    "@cosmjs/stargate": "^0.32.4",
     "@oraichain/agent-kit": "workspace:*",
     "langchain": "^0.3.19",
     "zod": "^3.24.2"
