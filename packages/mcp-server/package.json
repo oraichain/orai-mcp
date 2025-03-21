@@ -1,6 +1,6 @@
 {
   "name": "@oraichain/mcp-server",
-  "version": "0.0.4",
+  "version": "0.0.21",
   "description": "Oraichain Multichain MCP Server",
   "repository": "https://github.com/oraichain/multichain-mcp.git",
   "keywords": [
@@ -18,15 +18,17 @@
   ],
   "scripts": {
     "build": "tsc",
+    "postinstall": "chmod +x ./dist/index.js",
     "lint": "eslint . --config eslint.config.js",
     "lint:fix": "eslint . --config eslint.config.js --fix",
-    "start": "node dist/index.js"
+    "start": "node --experimental-specifier-resolution=node dist/index.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",
-    "@oraichain/agent-kit": "workspace:*",
-    "@oraichain/agent-tools": "workspace:*",
-    "@types/cors": "^2.8.17",
+    "@oraichain/agent-kit": "^0.0.2",
+    "@oraichain/agent-tools": "^0.0.3",
+    "axios": "0.21.4",
+    "axios-extensions": "3.1.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "hyper-express": "^6.17.3",
@@ -36,6 +38,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@cosmjs/amino": "^0.32.4",
     "@cosmjs/cosmwasm-stargate": "^0.32.4",
     "@cosmjs/crypto": "^0.32.4",

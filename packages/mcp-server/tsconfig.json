@@ -3,6 +3,7 @@
     "target": "es2022",
     "moduleDetection": "force",
     "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "importHelpers": true,
     "declaration": true,
     "sourceMap": true,

@@ -88,11 +88,11 @@ importers:
         specifier: ^0.32.4
         version: 0.32.4
       '@oraichain/agent-kit':
-        specifier: workspace:*
-        version: link:../agent-kit
+        specifier: ^0.0.2
+        version: 0.0.2(starknet@6.23.1)
       langchain:
         specifier: ^0.3.19
-        version: 0.3.19(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2)))(@langchain/mistralai@0.2.0(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2))))(axios@1.8.3)(openai@4.87.4(ws@7.5.10)(zod@3.24.2))(ws@7.5.10)
+        version: 0.3.19(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2)))(@langchain/mistralai@0.2.0(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2))))(axios@0.21.4)(openai@4.87.4(ws@7.5.10)(zod@3.24.2))(ws@7.5.10)
       vitest:
         specifier: ^3.0.9
         version: 3.0.9(@types/node@22.13.10)(yaml@2.7.0)
@@ -110,14 +110,17 @@ importers:
         specifier: ^1.7.0
         version: 1.7.0
       '@oraichain/agent-kit':
-        specifier: workspace:*
-        version: link:../agent-kit
+        specifier: ^0.0.2
+        version: 0.0.2(starknet@6.23.1)
       '@oraichain/agent-tools':
-        specifier: workspace:*
-        version: link:../agent-tools
-      '@types/cors':
-        specifier: ^2.8.17
-        version: 2.8.17
+        specifier: ^0.0.3
+        version: 0.0.3(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2)))(@langchain/mistralai@0.2.0(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2))))(@types/node@22.13.10)(axios@0.21.4)(openai@4.87.4(ws@7.5.10)(zod@3.24.2))(starknet@6.23.1)(ws@7.5.10)(yaml@2.7.0)
+      axios:
+        specifier: 0.21.4
+        version: 0.21.4
+      axios-extensions:
+        specifier: 3.1.6
+        version: 3.1.6(axios@0.21.4)
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -170,6 +173,9 @@ importers:
       '@oraichain/common':
         specifier: ^1.2.10
         version: 1.2.10(starknet@6.23.1)
+      '@types/cors':
+        specifier: ^2.8.17
+        version: 2.8.17
       cosmjs-types:
         specifier: ^0.9.0
         version: 0.9.0
@@ -179,9 +185,6 @@ importers:
       globals:
         specifier: ^13.24.0
         version: 13.24.0
-      language_models:
-        specifier: link:@langchain/core
-        version: link:@langchain/core
       typescript:
         specifier: ^5.8.2
         version: 5.8.2
@@ -744,6 +747,12 @@ packages:
   '@nolyfill/is-core-module@1.0.39':
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
+
+  '@oraichain/agent-kit@0.0.2':
+    resolution: {integrity: sha512-lmFLxFim3LFfv3HGXaeu1hanOqQ86a/80JXjAlr9ehTsPx+LhWY6rjnYOcTlDCcvULHjyjPbwn61zIb5CU/kTQ==}
+
+  '@oraichain/agent-tools@0.0.3':
+    resolution: {integrity: sha512-Z8xEzZOwcNgwnIA4scbX6N3cvwWxJZ75UfF8uPYmh2ZODdbsI3owL+nRjdaLUd8JrLIG21hkVC0GbSSRQ1lEhw==}
 
   '@oraichain/common@1.2.10':
     resolution: {integrity: sha512-fV3jYVVA/FSJ+CXA8xq4TWHKkz2DYNb1lujX74keUZWhTVs49l65uAzPuIA02NGS0tVhdlXMqS8ViJPRp0lnzQ==}
@@ -4395,6 +4404,80 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
+  '@oraichain/agent-kit@0.0.2(starknet@6.23.1)':
+    dependencies:
+      '@cosmjs/amino': 0.32.4
+      '@cosmjs/cosmwasm-stargate': 0.32.4
+      '@cosmjs/crypto': 0.32.4
+      '@cosmjs/encoding': 0.32.4
+      '@cosmjs/math': 0.32.4
+      '@cosmjs/proto-signing': 0.32.4
+      '@cosmjs/stargate': 0.32.4
+      '@cosmjs/tendermint-rpc': 0.32.4
+      '@cosmjs/utils': 0.33.1
+      '@oraichain/common': 1.2.10(starknet@6.23.1)
+      cosmjs-types: 0.9.0
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - starknet
+      - utf-8-validate
+
+  '@oraichain/agent-tools@0.0.3(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2)))(@langchain/mistralai@0.2.0(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2))))(@types/node@22.13.10)(axios@0.21.4)(openai@4.87.4(ws@7.5.10)(zod@3.24.2))(starknet@6.23.1)(ws@7.5.10)(yaml@2.7.0)':
+    dependencies:
+      '@cosmjs/amino': 0.32.4
+      '@cosmjs/proto-signing': 0.32.4
+      '@cosmjs/stargate': 0.32.4
+      '@oraichain/agent-kit': 0.0.2(starknet@6.23.1)
+      langchain: 0.3.19(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2)))(@langchain/mistralai@0.2.0(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2))))(axios@0.21.4)(openai@4.87.4(ws@7.5.10)(zod@3.24.2))(ws@7.5.10)
+      vitest: 3.0.9(@types/node@22.13.10)(yaml@2.7.0)
+      zod: 3.24.2
+    transitivePeerDependencies:
+      - '@edge-runtime/vm'
+      - '@langchain/anthropic'
+      - '@langchain/aws'
+      - '@langchain/cerebras'
+      - '@langchain/cohere'
+      - '@langchain/core'
+      - '@langchain/deepseek'
+      - '@langchain/google-genai'
+      - '@langchain/google-vertexai'
+      - '@langchain/google-vertexai-web'
+      - '@langchain/groq'
+      - '@langchain/mistralai'
+      - '@langchain/ollama'
+      - '@langchain/xai'
+      - '@types/debug'
+      - '@types/node'
+      - '@vitest/browser'
+      - '@vitest/ui'
+      - axios
+      - bufferutil
+      - cheerio
+      - debug
+      - encoding
+      - handlebars
+      - happy-dom
+      - jiti
+      - jsdom
+      - less
+      - lightningcss
+      - msw
+      - openai
+      - peggy
+      - sass
+      - sass-embedded
+      - starknet
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - typeorm
+      - utf-8-validate
+      - ws
+      - yaml
+
   '@oraichain/common@1.2.10(starknet@6.23.1)':
     dependencies:
       '@keplr-wallet/types': 0.12.141(starknet@6.23.1)
@@ -6372,29 +6455,6 @@ snapshots:
     optionalDependencies:
       '@langchain/mistralai': 0.2.0(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2)))
       axios: 0.21.4
-    transitivePeerDependencies:
-      - encoding
-      - openai
-      - ws
-
-  langchain@0.3.19(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2)))(@langchain/mistralai@0.2.0(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2))))(axios@1.8.3)(openai@4.87.4(ws@7.5.10)(zod@3.24.2))(ws@7.5.10):
-    dependencies:
-      '@langchain/core': 0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2))
-      '@langchain/openai': 0.4.5(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2)))(ws@7.5.10)
-      '@langchain/textsplitters': 0.1.0(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2)))
-      js-tiktoken: 1.0.19
-      js-yaml: 4.1.0
-      jsonpointer: 5.0.1
-      langsmith: 0.3.14(openai@4.87.4(ws@7.5.10)(zod@3.24.2))
-      openapi-types: 12.1.3
-      p-retry: 4.6.2
-      uuid: 10.0.0
-      yaml: 2.7.0
-      zod: 3.24.2
-      zod-to-json-schema: 3.24.4(zod@3.24.2)
-    optionalDependencies:
-      '@langchain/mistralai': 0.2.0(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2)))
-      axios: 1.8.3
     transitivePeerDependencies:
       - encoding
       - openai

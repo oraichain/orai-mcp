@@ -31,12 +31,12 @@ export function createMcpServer(
           content: [
             {
               type: "text",
-              text: JSON.stringify(result, null, 2),
+              text: JSON.stringify(result),
             },
           ],
         };
       } catch (error) {
-        logger.error("error", error);
+        console.error("error", error);
         // Handle errors in MCP format
         return {
           isError: true,
