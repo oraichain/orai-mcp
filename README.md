@@ -179,15 +179,12 @@ To add this MCP server to Claude Desktop:
 ```json
 {
   "mcpServers": {
-    "multichain-mcp": {
-      "command": "node",
-      "args": ["packages/mcp-server/dist/index.js"],
+    "mcp-server": {
+      "command": "npx",
+      "args": ["-y", "@oraichain/mcp-server@0.0.21"],
       "env": {
-        "PORT": "4000",
-        "RPC_URL": "your_rpc_url"
-      },
-      "disabled": false,
-      "autoApprove": []
+        "RPC_URL": "https://rpc.orai.io"
+      }
     }
   }
 }

@@ -108,3 +108,19 @@ For Stdio:
 
 For SSE:
 ![SSE](image.png)
+
+# Setup for Claude Desktop
+
+```json
+{
+  "mcpServers": {
+    "mcp-server": {
+      "command": "npx",
+      "args": ["-y", "@oraichain/mcp-server@0.0.21"],
+      "env": {
+        "RPC_URL": "https://rpc.orai.io"
+      }
+    }
+  }
+}
+```
