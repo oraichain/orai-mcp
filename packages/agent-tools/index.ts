@@ -1,1 +1,1 @@
-export * from "./oraichain";
+export * from "./oraichain/index.js";

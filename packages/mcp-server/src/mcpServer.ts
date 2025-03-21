@@ -1,5 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { zodToMCPShape } from "./utils";
+import { zodToMCPShape } from "./utils.js";
 import { Tool } from "langchain/tools";
 
 /**

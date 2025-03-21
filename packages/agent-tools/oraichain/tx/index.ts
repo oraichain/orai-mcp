@@ -1,4 +1,2 @@
-export { OraichainBroadcastTxTool } from "./broadcastTools";
-export { OraichainBroadcastTxFromBytesTool } from "./broadcastTools";
-export { OraichainBroadcastSignDocTool } from "./broadcastTools";
-export * from "./voteTool";
+export * from "./broadcastTools.js";
+export * from "./voteTool.js";

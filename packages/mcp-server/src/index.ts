@@ -5,11 +5,10 @@ import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { Readable } from "stream";
 import { IncomingMessage } from "http";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
-import { createMcpServer } from "./mcpServer";
-import { oraichainRpcUrl, serverPort } from "./config";
+import { createMcpServer } from "./mcpServer.js";
+import { oraichainRpcUrl, serverPort } from "./config.js";
 import HyperExpress from "hyper-express";
 import cors from "cors";
-import { version } from "../package.json";
 import {
   OraichainBalanceTool,
   OraichainBroadcastSignDocTool,
@@ -18,7 +17,7 @@ import {
   DelegateTool,
   OraichainTokenTransferTool,
 } from "@oraichain/agent-tools";
-import { initLogger } from "./logger";
+import { initLogger } from "./logger.js";
 const app = new HyperExpress.Server({ fast_buffers: true });
 const port = Number(serverPort);
 
@@ -76,10 +75,6 @@ app.post("/", async (req, res) => {
 
 app.get("/", async (req, res) => {
   res.json("Success!!");
-});
-
-app.get("/version", async (req, res) => {
-  res.json({ version });
 });
 
 app.get("/sse", async (req, res) => {
@@ -169,7 +164,7 @@ async function main() {
 
       server = createMcpServer(ORAICHAIN_ACTIONS as any, {
         name: "oraichain-mcp-server",
-        version,
+        version: "0.0.5",
       });
       logger.info(`Server listening on port ${port}`);
     } catch (error) {

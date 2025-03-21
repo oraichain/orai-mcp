@@ -7,11 +7,11 @@
     "oraichain"
   ],
   "license": "MIT",
-  "main": "dist/src/index.js",
-  "typings": "dist/src/index.d.ts",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "type": "module",
   "bin": {
-    "mcp-server": "./dist/src/index.js"
+    "mcp-server": "./dist/index.js"
   },
   "files": [
     "dist"
@@ -20,7 +20,7 @@
     "build": "tsc",
     "lint": "eslint . --config eslint.config.js",
     "lint:fix": "eslint . --config eslint.config.js --fix",
-    "start": "node dist/src/index.js"
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",

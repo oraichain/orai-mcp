@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "module": "esnext",
+    "target": "es2022",
+    "moduleDetection": "force",
+    "module": "NodeNext",
     "importHelpers": true,
     "declaration": true,
     "sourceMap": true,
     "strict": false,
-    "moduleResolution": "node",
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "outDir": "dist",

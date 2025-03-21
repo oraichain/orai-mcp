@@ -35,7 +35,7 @@ import {
 } from "@cosmjs/stargate";
 import { Binary, ORAI, OraiCommon } from "@oraichain/common";
 import { Comet38Client } from "@cosmjs/tendermint-rpc";
-import { SignDoc, TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import { SignDoc, TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx.js";
 import {
   Secp256k1Pubkey,
   StdFee,
@@ -44,10 +44,10 @@ import {
   encodeSecp256k1Pubkey,
   encodeSecp256k1Signature,
 } from "@cosmjs/amino";
-import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
-import { Any } from "cosmjs-types/google/protobuf/any";
+import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing.js";
+import { Any } from "cosmjs-types/google/protobuf/any.js";
 import { Int53 } from "@cosmjs/math";
-import { PubKey } from "cosmjs-types/cosmos/crypto/secp256k1/keys";
+import { PubKey } from "cosmjs-types/cosmos/crypto/secp256k1/keys.js";
 import { fromBase64 } from "@cosmjs/encoding";
 import { assertDefined } from "@cosmjs/utils";
 
