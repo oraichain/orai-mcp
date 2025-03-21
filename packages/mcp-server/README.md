@@ -124,3 +124,20 @@ For SSE:
   }
 }
 ```
+
+Local setup for dev:
+
+```json
+{
+  "mcpServers": {
+    "mcp-server": {
+      "command": "node",
+      "args": ["/path/to/mcp-server/dist/index.js"],
+      "env": {
+        "RPC_URL": "https://rpc.orai.io"
+      }
+    }
+  }
+}
+
+```

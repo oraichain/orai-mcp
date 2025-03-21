@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
 import "dotenv/config";
-import { OraichainAgentKit } from "@oraichain/agent-kit";
+import {
+  OraichainAgentKit,
+  OraichainAgentKitWithSigner,
+} from "@oraichain/agent-kit";
 import { Tool } from "langchain/tools";
 import { createMcpServer } from "./mcpServer.js";
 import {
@@ -16,6 +19,7 @@ import {
   RedelegateTool,
   UndelegateTool,
   ClaimCommissionTool,
+  OraichainSignTool,
 } from "@oraichain/agent-tools";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
@@ -59,6 +63,7 @@ export async function startMcpServer(
 
 async function main() {
   const agent = await OraichainAgentKit.connect(process.env.RPC_URL!);
+
   const ORAICHAIN_ACTIONS = [
     new OraichainBalanceTool(agent),
     new DelegateTool(agent),
@@ -72,6 +77,17 @@ async function main() {
     new OraichainBroadcastTxFromBytesTool(agent),
     new OraichainBroadcastSignDocTool(agent),
   ];
+
+  if (process.env.MNEMONIC) {
+    const agentWithSigner =
+      await OraichainAgentKitWithSigner.connectWithAgentKit(
+        agent,
+        process.env.MNEMONIC!
+      );
+
+    const SIGNER_ACTIONS = [new OraichainSignTool(agentWithSigner)];
+    ORAICHAIN_ACTIONS.push(...(SIGNER_ACTIONS as any));
+  }
 
   startMcpServer(ORAICHAIN_ACTIONS as any, {
     name: "oraichain-agent-stdio",

@@ -25,8 +25,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",
-    "@oraichain/agent-kit": "^0.0.2",
-    "@oraichain/agent-tools": "^0.0.3",
+    "@oraichain/agent-kit": "workspace:*",
+    "@oraichain/agent-tools": "workspace:*",
     "axios": "0.21.4",
     "axios-extensions": "3.1.6",
     "cors": "^2.8.5",

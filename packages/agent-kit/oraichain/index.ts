@@ -7,6 +7,7 @@ import {
   wasmTypes,
 } from "@cosmjs/cosmwasm-stargate";
 import {
+  DirectSecp256k1HdWallet,
   EncodeObject,
   encodePubkey,
   makeAuthInfoBytes,
@@ -37,12 +38,12 @@ import { Binary, ORAI, OraiCommon } from "@oraichain/common";
 import { Comet38Client } from "@cosmjs/tendermint-rpc";
 import { SignDoc, TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx.js";
 import {
+  Secp256k1HdWallet,
   Secp256k1Pubkey,
   StdFee,
   StdSignDoc,
   StdSignature,
   encodeSecp256k1Pubkey,
-  encodeSecp256k1Signature,
 } from "@cosmjs/amino";
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing.js";
 import { Any } from "cosmjs-types/google/protobuf/any.js";
@@ -66,6 +67,7 @@ type PubkeyType =
 export class OraichainAgentKit {
   public gasMultiplier: number = 1.4;
   private constructor(
+    public readonly rpcUrl: string,
     public readonly client: CosmWasmClient,
     public readonly queryClient: QueryClient &
       BankExtension &
@@ -96,7 +98,7 @@ export class OraichainAgentKit {
       setupTxExtension,
       setupDistributionExtension
     );
-    return new OraichainAgentKit(client, queryClient);
+    return new OraichainAgentKit(rpcUrl, client, queryClient);
   }
 
   async getBalance(address: string, denom: string) {
@@ -217,30 +219,24 @@ export class OraichainAgentKit {
     return makeSignDoc(txBodyBytes, authInfoBytes, chainId, accountNumber);
   }
 
-  buildTxRawBuffer(signDoc: SignDoc, publicKey: string, signature: string) {
-    const pubkeyBuffer = Buffer.from(publicKey, "base64");
-    console.log(fromBase64(signature).length);
-    console.log(publicKey);
-    console.log(fromBase64(publicKey).length);
-    const stdSignature = encodeSecp256k1Signature(
-      pubkeyBuffer,
-      fromBase64(signature)
-    );
+  buildTxRawBuffer(signDoc: SignDoc, signature: string) {
+    const signatureBuffer = Buffer.from(signature, "base64");
+    if (signatureBuffer.length !== 64) {
+      throw new Error(
+        "Signature must be 64 bytes long. Cosmos SDK uses a 2x32 byte fixed length encoding for the secp256k1 signature integers r and s."
+      );
+    }
     const txRaw = TxRaw.fromPartial({
       bodyBytes: signDoc.bodyBytes,
       authInfoBytes: signDoc.authInfoBytes,
-      signatures: [fromBase64(stdSignature.signature)],
+      signatures: [fromBase64(signature)],
     });
     return TxRaw.encode(txRaw).finish();
   }
 
-  async broadcastSignDocBase64(
-    signDocBase64: string,
-    publicKey: string,
-    signature: string
-  ) {
+  async broadcastSignDocBase64(signDocBase64: string, signature: string) {
     const signDocObj = SignDoc.decode(Buffer.from(signDocBase64, "base64"));
-    const txBytes = this.buildTxRawBuffer(signDocObj, publicKey, signature);
+    const txBytes = this.buildTxRawBuffer(signDocObj, signature);
     return this.client.broadcastTxSync(txBytes);
   }
   /**
@@ -332,5 +328,83 @@ export class OraichainAgentKit {
     );
     assertDefined(gasInfo);
     return Int53.fromString(gasInfo.gasUsed.toString()).toNumber();
+  }
+}
+
+export class OraichainAgentKitWithSigner {
+  private constructor(
+    public readonly agentKit: OraichainAgentKit,
+    public readonly signer: DirectSecp256k1HdWallet,
+    public readonly signerAmino: Secp256k1HdWallet,
+    public readonly signingCosmWasmClient: SigningCosmWasmClient
+  ) {}
+
+  static async connectWithAgentKit(
+    agentKit: OraichainAgentKit,
+    mnemonic: string
+  ) {
+    const signer = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
+      prefix: ORAI,
+    });
+    const signerAmino = await Secp256k1HdWallet.fromMnemonic(mnemonic, {
+      prefix: ORAI,
+    });
+    const signingCosmWasmClient = await SigningCosmWasmClient.connectWithSigner(
+      agentKit.rpcUrl,
+      signer,
+      {
+        gasPrice: GasPrice.fromString("0.001" + ORAI),
+        registry: agentKit.registry,
+        aminoTypes: agentKit.aminoTypes,
+      }
+    );
+    return new OraichainAgentKitWithSigner(
+      agentKit,
+      signer,
+      signerAmino,
+      signingCosmWasmClient
+    );
+  }
+
+  static async connectWithSigner(rpcUrl: string, mnemonic: string) {
+    const agentKit = await OraichainAgentKit.connect(rpcUrl);
+    return this.connectWithAgentKit(agentKit, mnemonic);
+  }
+
+  async sign(
+    signDocBase64: Binary,
+    accountIndex: number = 0,
+    direct: boolean = true
+  ) {
+    if (direct) {
+      return this.signDirect(signDocBase64, accountIndex);
+    }
+    return this.signAmino(signDocBase64, accountIndex);
+  }
+
+  async signDirect(signDocBase64: Binary, accountIndex: number = 0) {
+    const signDoc = SignDoc.decode(Buffer.from(signDocBase64, "base64"));
+    const accounts = await this.signer.getAccounts();
+    const wallet = accounts[accountIndex];
+    const response = await this.signer.signDirect(wallet.address, signDoc);
+    return {
+      signDoc: Buffer.from(makeSignBytes(signDoc)).toString("base64"),
+      signature: Buffer.from(response.signature.signature).toString("base64"),
+    };
+  }
+
+  async signAmino(signDocBase64: Binary, accountIndex: number = 0) {
+    const signDoc: StdSignDoc = JSON.parse(
+      Buffer.from(signDocBase64, "base64").toString("utf-8")
+    );
+    const accounts = await this.signerAmino.getAccounts();
+    const wallet = accounts[accountIndex];
+    const response = await this.signerAmino.signAmino(wallet.address, signDoc);
+    return {
+      signDoc: signDocBase64,
+      signature: Buffer.from(JSON.stringify(response.signature)).toString(
+        "base64"
+      ),
+    };
   }
 }

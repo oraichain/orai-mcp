@@ -114,7 +114,6 @@ export class OraichainBroadcastSignDocTool extends Tool {
     try {
       const txHash = await this.oraichainKit.broadcastSignDocBase64(
         input.signDocBase64,
-        input.publicKey,
         input.signature
       );
 
