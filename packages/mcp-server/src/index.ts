@@ -1,13 +1,15 @@
+#!/usr/bin/env node
+
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { Readable } from "stream";
 import { IncomingMessage } from "http";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
-import { createMcpServer } from "./src/mcpServer";
-import { oraichainRpcUrl, serverPort } from "./src/config";
+import { createMcpServer } from "./mcpServer";
+import { oraichainRpcUrl, serverPort } from "./config";
 import HyperExpress from "hyper-express";
 import cors from "cors";
-import { version } from "./package.json";
+import { version } from "../package.json";
 import {
   OraichainBalanceTool,
   OraichainBroadcastSignDocTool,
@@ -16,7 +18,7 @@ import {
   DelegateTool,
   OraichainTokenTransferTool,
 } from "@oraichain/agent-tools";
-
+import { initLogger } from "./logger";
 const app = new HyperExpress.Server({ fast_buffers: true });
 const port = Number(serverPort);
 
@@ -90,7 +92,7 @@ app.get("/sse", async (req, res) => {
     const transport = new SSEServerTransport("/messages", res as any);
 
     await server.connect(transport);
-    console.log(`SSE connection established: ${connectionId}`);
+    logger.info(`SSE connection established: ${connectionId}`);
     const sessionId = transport.sessionId;
     if (sessionId) {
       sessions[sessionId] = transport;
@@ -98,10 +100,10 @@ app.get("/sse", async (req, res) => {
 
     req.on("close", () => {
       delete sessions[sessionId];
-      console.log(`Connection ${connectionId} closed`);
+      logger.info(`Connection ${connectionId} closed`);
     });
   } catch (error) {
-    console.error("SSE setup error:", error);
+    logger.error("SSE setup error:", error);
     res.status(500).send(`Error: ${error.message}`);
   }
 });
@@ -122,7 +124,7 @@ app.post("/messages", async (req, res) => {
 
   // Access the parsed body from express.json()
   const body = req.body;
-  console.log("POST /messages body:", body);
+  logger.info("POST /messages body:", body);
 
   // Reconstruct the request stream from the parsed body
   const rawBody = JSON.stringify(body);
@@ -144,32 +146,37 @@ app.post("/messages", async (req, res) => {
   try {
     await session.handlePostMessage(newReq, res as any);
   } catch (error) {
-    console.error("Error in POST /messages:", error);
+    logger.error("Error in POST /messages:", error);
     res
       .status(400)
       .json({ error: "Failed to process message", details: error.message });
   }
 });
 
-app.listen(port, "0.0.0.0", async () => {
-  try {
-    const agent = await OraichainAgentKit.connect(oraichainRpcUrl);
-    const ORAICHAIN_ACTIONS = [
-      new OraichainBalanceTool(agent),
-      new DelegateTool(agent),
-      new OraichainTokenTransferTool(agent),
-      new OraichainBroadcastTxTool(agent),
-      new OraichainBroadcastTxFromBytesTool(agent),
-      new OraichainBroadcastSignDocTool(agent),
-    ];
+async function main() {
+  global.logger = initLogger("Oraichain MCP Server");
+  app.listen(port, "0.0.0.0", async () => {
+    try {
+      const agent = await OraichainAgentKit.connect(oraichainRpcUrl);
+      const ORAICHAIN_ACTIONS = [
+        new OraichainBalanceTool(agent),
+        new DelegateTool(agent),
+        new OraichainTokenTransferTool(agent),
+        new OraichainBroadcastTxTool(agent),
+        new OraichainBroadcastTxFromBytesTool(agent),
+        new OraichainBroadcastSignDocTool(agent),
+      ];
 
-    server = createMcpServer(ORAICHAIN_ACTIONS as any, {
-      name: "oraichain-mcp-server",
-      version: "0.0.1",
-    });
-    console.log(`Server listening on port ${port}`);
-  } catch (error) {
-    console.error("Server initialization failed:", error);
-    process.exit(1);
-  }
-});
+      server = createMcpServer(ORAICHAIN_ACTIONS as any, {
+        name: "oraichain-mcp-server",
+        version,
+      });
+      logger.info(`Server listening on port ${port}`);
+    } catch (error) {
+      logger.error("Server initialization failed:", error);
+      process.exit(1);
+    }
+  });
+}
+
+main();

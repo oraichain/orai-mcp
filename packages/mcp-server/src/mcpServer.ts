@@ -36,7 +36,7 @@ export function createMcpServer(
           ],
         };
       } catch (error) {
-        console.error("error", error);
+        logger.error("error", error);
         // Handle errors in MCP format
         return {
           isError: true,

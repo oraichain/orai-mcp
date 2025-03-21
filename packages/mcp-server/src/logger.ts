@@ -24,7 +24,7 @@ class CaptureLastMessageTransport extends TransportStream {
 
 export const captureTransport = new CaptureLastMessageTransport();
 
-export const logger = (label: string, loglevel?: string) =>
+export const initLogger = (label: string, loglevel?: string) =>
   createLogger({
     level: loglevel || "info",
     format: format.combine(
