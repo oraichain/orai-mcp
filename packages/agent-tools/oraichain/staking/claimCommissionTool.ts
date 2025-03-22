@@ -7,7 +7,7 @@ export class ClaimCommissionTool extends Tool {
   name = "claimCommission";
   description = `Claim validator commission rewards on Oraichain.
 
-  Inputs (input is a JSON string):
+  Inputs (input is an object):
   validatorAddress: string - The address of the validator
   publicKey: string - The validator's public key for signing
   `;
@@ -37,7 +37,7 @@ export class ClaimCommissionTool extends Tool {
           },
         ],
         "auto",
-        "",
+        ""
       );
 
       return JSON.stringify({
@@ -100,7 +100,7 @@ if (import.meta.vitest) {
           },
         ],
         "auto",
-        "",
+        ""
       );
     });
 
@@ -114,7 +114,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema",
+          "Received tool input did not match expected schema"
         );
       }
     });

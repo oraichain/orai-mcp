@@ -8,7 +8,7 @@ export class OraichainBalanceTool extends Tool {
 
   If you want to get the balance of your first wallet, you don't need to provide the accountIndex.
 
-  Inputs ( input is a JSON string ):
+  Inputs ( input is an object ):
   denom: string, eg: "orai",
   address: string, eg: "orai1...",
   `;

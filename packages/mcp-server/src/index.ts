@@ -20,6 +20,9 @@ import {
   UndelegateTool,
   ClaimCommissionTool,
   OraichainSignTool,
+  OraichainAccountTool,
+  GetAllValidatorsInfoTool,
+  OraichainTxHashInfoTool,
 } from "@oraichain/agent-tools";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { oraichainRpcUrl, mnemonic } from "./config.js";
@@ -48,7 +51,7 @@ export async function startMcpServer(
   options: {
     name: string;
     version: string;
-  },
+  }
 ) {
   try {
     const server = createMcpServer(tools, options);
@@ -70,6 +73,7 @@ async function main() {
     new DelegateTool(agent),
     new GetDelegationsTool(agent),
     new GetValidatorInfoTool(agent),
+    new GetAllValidatorsInfoTool(agent),
     new RedelegateTool(agent),
     new UndelegateTool(agent),
     new ClaimCommissionTool(agent),
@@ -77,13 +81,17 @@ async function main() {
     new OraichainBroadcastTxTool(agent),
     new OraichainBroadcastTxFromBytesTool(agent),
     new OraichainBroadcastSignDocTool(agent),
+    new OraichainTxHashInfoTool(agent),
   ];
 
   if (mnemonic) {
     const agentWithSigner =
       await OraichainAgentKitWithSigner.connectWithAgentKit(agent, mnemonic);
 
-    const SIGNER_ACTIONS = [new OraichainSignTool(agentWithSigner)];
+    const SIGNER_ACTIONS = [
+      new OraichainSignTool(agentWithSigner),
+      new OraichainAccountTool(agentWithSigner),
+    ];
     ORAICHAIN_ACTIONS.push(...(SIGNER_ACTIONS as any));
   }
 

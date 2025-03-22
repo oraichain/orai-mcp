@@ -34,7 +34,7 @@ import {
   StakingExtension,
   TxExtension,
 } from "@cosmjs/stargate";
-import { Binary, ORAI, OraiCommon } from "@oraichain/common";
+import { Binary, ORAI } from "@oraichain/common";
 import { Comet38Client } from "@cosmjs/tendermint-rpc";
 import { SignDoc, TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx.js";
 import {
@@ -49,7 +49,7 @@ import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing.js";
 import { Any } from "cosmjs-types/google/protobuf/any.js";
 import { Int53 } from "@cosmjs/math";
 import { PubKey } from "cosmjs-types/cosmos/crypto/secp256k1/keys.js";
-import { fromBase64 } from "@cosmjs/encoding";
+import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { assertDefined } from "@cosmjs/utils";
 
 type PubkeyType =
@@ -65,7 +65,7 @@ type PubkeyType =
  * @property {SigningCosmWasmClient} client - Client instance for interacting with the blockchain
  */
 export class OraichainAgentKit {
-  public gasMultiplier: number = 1.4;
+  public gasMultiplier: number = 1.5;
   private constructor(
     public readonly rpcUrl: string,
     public readonly client: CosmWasmClient,
@@ -83,7 +83,7 @@ export class OraichainAgentKit {
     public readonly aminoTypes = new AminoTypes({
       ...createDefaultAminoConverters(),
       ...createWasmAminoConverters(),
-    }),
+    })
   ) {}
 
   static async connect(rpcUrl: string) {
@@ -96,7 +96,7 @@ export class OraichainAgentKit {
       setupWasmExtension,
       setupMintExtension,
       setupTxExtension,
-      setupDistributionExtension,
+      setupDistributionExtension
     );
     return new OraichainAgentKit(rpcUrl, client, queryClient);
   }
@@ -113,7 +113,7 @@ export class OraichainAgentKit {
     senderAddress: string,
     publickey: string,
     toAddress: string,
-    amount: Coin,
+    amount: Coin
   ) {
     const signDoc = await this.buildSignDoc(
       senderAddress,
@@ -129,7 +129,7 @@ export class OraichainAgentKit {
         },
       ],
       "auto",
-      "",
+      ""
     );
     return {
       signDoc: Buffer.from(makeSignBytes(signDoc)).toString("base64"),
@@ -151,7 +151,7 @@ export class OraichainAgentKit {
     messages: readonly EncodeObject[],
     stdFee: StdFee | "auto",
     memo: string = "",
-    timeoutHeight?: bigint,
+    timeoutHeight?: bigint
   ) {
     const { accountNumber, sequence } =
       await this.client.getSequence(senderAddress);
@@ -167,28 +167,12 @@ export class OraichainAgentKit {
         senderAddress,
         secp256k1Pubkey,
         messages,
-        memo,
+        memo
       );
-      const common = await OraiCommon.initializeFromGitRaw({
-        chainIds: ["Oraichain"],
-      });
-      const chainInfo = common.chainInfos.cosmosChains.find(
-        (chain) => chain.chainId === "Oraichain",
-      );
-      if (!chainInfo) {
-        throw new Error("Oraichain chain info not found");
-      }
-      const feeCurrency = chainInfo.feeCurrencies?.[0];
-      if (!feeCurrency) {
-        throw new Error("Oraichain fee currency not found");
-      }
+      const gasUsedWithMultiplier = (gasUsed * this.gasMultiplier).toFixed(0);
       fee = calculateFee(
-        gasUsed,
-        GasPrice.fromString(
-          `${
-            feeCurrency.gasPriceStep ? feeCurrency.gasPriceStep.low : "0.001"
-          }${ORAI}`,
-        ),
+        parseInt(gasUsedWithMultiplier),
+        GasPrice.fromString(`0.001${ORAI}`)
       );
     } else {
       fee = stdFee;
@@ -214,27 +198,22 @@ export class OraichainAgentKit {
       fee.amount,
       gasLimit,
       fee.granter,
-      fee.payer,
+      fee.payer
     );
     return makeSignDoc(txBodyBytes, authInfoBytes, chainId, accountNumber);
   }
 
-  buildTxRawBuffer(signDoc: SignDoc, signature: string) {
-    const signatureBuffer = Buffer.from(signature, "base64");
-    if (signatureBuffer.length !== 64) {
-      throw new Error(
-        "Signature must be 64 bytes long. Cosmos SDK uses a 2x32 byte fixed length encoding for the secp256k1 signature integers r and s.",
-      );
-    }
+  buildTxRawBuffer(signDoc: SignDoc, signature: Binary) {
+    const signatureBuffer = fromBase64(signature);
     const txRaw = TxRaw.fromPartial({
       bodyBytes: signDoc.bodyBytes,
       authInfoBytes: signDoc.authInfoBytes,
-      signatures: [fromBase64(signature)],
+      signatures: [signatureBuffer],
     });
     return TxRaw.encode(txRaw).finish();
   }
 
-  async broadcastSignDocBase64(signDocBase64: string, signature: string) {
+  async broadcastSignDocBase64(signDocBase64: Binary, signature: Binary) {
     const signDocObj = SignDoc.decode(Buffer.from(signDocBase64, "base64"));
     const txBytes = this.buildTxRawBuffer(signDocObj, signature);
     return this.client.broadcastTxSync(txBytes);
@@ -257,7 +236,7 @@ export class OraichainAgentKit {
   async broadcastTxSyncFromDirectSignDocAndSignature(
     signedBodyBytes: Binary,
     signedAuthBytes: Binary,
-    signatures: Binary[],
+    signatures: Binary[]
   ) {
     const txRaw = TxRaw.fromPartial({
       bodyBytes: fromBase64(signedBodyBytes),
@@ -276,7 +255,7 @@ export class OraichainAgentKit {
   async broadcastTxSyncFromStdSignDocAndSignature(
     signedDoc: StdSignDoc,
     signature: StdSignature,
-    pubkeyType: PubkeyType = "/cosmos.crypto.secp256k1.PubKey",
+    pubkeyType: PubkeyType = "/cosmos.crypto.secp256k1.PubKey"
   ) {
     const signedTxBody = {
       messages: signedDoc.msgs.map((msg) => this.aminoTypes.fromAmino(msg)),
@@ -301,7 +280,7 @@ export class OraichainAgentKit {
       signedGasLimit,
       signedDoc.fee.granter,
       signedDoc.fee.payer,
-      SignMode.SIGN_MODE_LEGACY_AMINO_JSON,
+      SignMode.SIGN_MODE_LEGACY_AMINO_JSON
     );
     const txRaw = TxRaw.fromPartial({
       bodyBytes: signedTxBodyBytes,
@@ -316,7 +295,7 @@ export class OraichainAgentKit {
     senderAddress: string,
     senderPubkey: Secp256k1Pubkey,
     messages: readonly EncodeObject[],
-    memo: string,
+    memo: string
   ) {
     const anyMsgs = messages.map((m) => this.registry.encodeAsAny(m));
     const { sequence } = await this.client.getSequence(senderAddress);
@@ -324,7 +303,7 @@ export class OraichainAgentKit {
       anyMsgs,
       memo,
       senderPubkey,
-      sequence,
+      sequence
     );
     assertDefined(gasInfo);
     return Int53.fromString(gasInfo.gasUsed.toString()).toNumber();
@@ -336,12 +315,12 @@ export class OraichainAgentKitWithSigner {
     public readonly agentKit: OraichainAgentKit,
     public readonly signer: DirectSecp256k1HdWallet,
     public readonly signerAmino: Secp256k1HdWallet,
-    public readonly signingCosmWasmClient: SigningCosmWasmClient,
+    public readonly signingCosmWasmClient: SigningCosmWasmClient
   ) {}
 
   static async connectWithAgentKit(
     agentKit: OraichainAgentKit,
-    mnemonic: string,
+    mnemonic: string
   ) {
     const signer = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
       prefix: ORAI,
@@ -356,13 +335,13 @@ export class OraichainAgentKitWithSigner {
         gasPrice: GasPrice.fromString("0.001" + ORAI),
         registry: agentKit.registry,
         aminoTypes: agentKit.aminoTypes,
-      },
+      }
     );
     return new OraichainAgentKitWithSigner(
       agentKit,
       signer,
       signerAmino,
-      signingCosmWasmClient,
+      signingCosmWasmClient
     );
   }
 
@@ -371,10 +350,24 @@ export class OraichainAgentKitWithSigner {
     return this.connectWithAgentKit(agentKit, mnemonic);
   }
 
+  async getSignerInfo(accountIndex: number = 0) {
+    const accounts = await this.signer.getAccounts();
+    const account = accounts[accountIndex];
+    const { sequence, accountNumber } =
+      await this.signingCosmWasmClient.getSequence(account.address);
+
+    return {
+      address: account.address,
+      pubkey: toBase64(account.pubkey),
+      sequence,
+      accountNumber,
+    };
+  }
+
   async sign(
     signDocBase64: Binary,
     accountIndex: number = 0,
-    direct: boolean = true,
+    direct: boolean = true
   ) {
     if (direct) {
       return this.signDirect(signDocBase64, accountIndex);
@@ -388,14 +381,14 @@ export class OraichainAgentKitWithSigner {
     const wallet = accounts[accountIndex];
     const response = await this.signer.signDirect(wallet.address, signDoc);
     return {
-      signDoc: Buffer.from(makeSignBytes(signDoc)).toString("base64"),
-      signature: Buffer.from(response.signature.signature).toString("base64"),
+      signDoc: toBase64(makeSignBytes(signDoc)),
+      signature: response.signature.signature,
     };
   }
 
   async signAmino(signDocBase64: Binary, accountIndex: number = 0) {
     const signDoc: StdSignDoc = JSON.parse(
-      Buffer.from(signDocBase64, "base64").toString("utf-8"),
+      Buffer.from(signDocBase64, "base64").toString("utf-8")
     );
     const accounts = await this.signerAmino.getAccounts();
     const wallet = accounts[accountIndex];
@@ -403,7 +396,7 @@ export class OraichainAgentKitWithSigner {
     return {
       signDoc: signDocBase64,
       signature: Buffer.from(JSON.stringify(response.signature)).toString(
-        "base64",
+        "base64"
       ),
     };
   }

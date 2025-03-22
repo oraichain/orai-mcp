@@ -28,10 +28,11 @@ export class DelegateTool extends Tool {
   description = `Delegate tokens to a validator on Oraichain.
 
   Inputs:
-  delegatorAddress: string - The address of the delegator
-  validatorAddress: string - The address of the validator to delegate to
-  amount: string - The amount to delegate in ORAI
-  publicKey: string - The delegator's public key for signing
+  delegatorAddress: string - The address of the delegator.
+  validatorAddress: string - The address of the validator to delegate to.
+  amount: string - The amount to delegate to. If the denom is fully uppercase, multiply the input amount by 10^6. If the denom is fully lowercase, let it be.
+  denom: string - The denom of the amount to delegate to.
+  publicKey: string - The delegator's public key for signing.
   `;
 
   // @ts-ignore
@@ -40,7 +41,12 @@ export class DelegateTool extends Tool {
     validatorAddress: z
       .string()
       .describe("The address of the validator to delegate to"),
-    amount: z.string().describe("The amount to delegate in ORAI"),
+    amount: z
+      .string()
+      .describe(
+        "The amount to delegate to. If the denom is fully uppercase, multiply the input amount by 10^6. If the denom is fully lowercase, let it be."
+      ),
+    denom: z.string().describe("The denom of the amount to delegate to."),
     publicKey: z.string().describe("The delegator's public key for signing"),
   });
 
@@ -51,7 +57,7 @@ export class DelegateTool extends Tool {
   protected async _call(input: z.infer<typeof this.schema>): Promise<string> {
     try {
       const amount: Coin = {
-        denom: "orai",
+        denom: input.denom,
         amount: input.amount,
       };
 
@@ -69,7 +75,7 @@ export class DelegateTool extends Tool {
           },
         ],
         "auto",
-        "",
+        ""
       );
 
       return JSON.stringify({
@@ -138,7 +144,7 @@ if (import.meta.vitest) {
           },
         ],
         "auto",
-        "",
+        ""
       );
     });
 
@@ -152,7 +158,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema",
+          "Received tool input did not match expected schema"
         );
       }
     });

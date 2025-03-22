@@ -4,9 +4,9 @@ import { z } from "zod";
 
 export class OraichainTokenTransferTool extends Tool {
   name = "oraichain_token_transfer";
-  description = `Transfer a token with an amount to a recipient address.
+  description = `Generate a transfer message for a token with an amount to a recipient address.
 
-  Inputs (input is a JSON string):
+  Inputs (input is an object):
   senderAddress: string - The sender address
   recipient: string - The recipient address
   publicKey: string - The public key of the sender
@@ -37,12 +37,12 @@ export class OraichainTokenTransferTool extends Tool {
         input.senderAddress,
         input.publicKey,
         input.recipient,
-        input.amount,
+        input.amount
       );
 
       return JSON.stringify({
         status: "success",
-        message: `Successfully transferred ${input.amount.amount}${input.amount.denom} from ${input.senderAddress} to ${input.recipient}`,
+        message: `Successfully generated a transfer message for ${input.amount.amount}${input.amount.denom} from ${input.senderAddress} to ${input.recipient}`,
         data: message,
       });
     } catch (error: any) {
@@ -95,7 +95,7 @@ if (import.meta.vitest) {
         input.senderAddress,
         input.publicKey,
         input.recipient,
-        input.amount,
+        input.amount
       );
     });
 
@@ -109,7 +109,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema",
+          "Received tool input did not match expected schema"
         );
       }
     });

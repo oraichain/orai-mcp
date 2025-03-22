@@ -6,7 +6,7 @@ export class OraichainBroadcastTxTool extends Tool {
   name = "oraichain_broadcast_tx";
   description = `Broadcast a signed transaction to the network.
 
-  Inputs (input is a JSON string):
+  Inputs (input is an object):
   signedTx: string - The signed transaction in base64 format
   `;
 
@@ -42,7 +42,7 @@ export class OraichainBroadcastTxFromBytesTool extends Tool {
   name = "oraichain_broadcast_tx_from_bytes";
   description = `Broadcast a signed transaction to the network using signed body bytes, auth bytes and signature.
 
-  Inputs (input is a JSON string):
+  Inputs (input is an object):
   signedBodyBytes: string - The signed transaction body in base64 format
   signedAuthBytes: string - The signed transaction auth info in base64 format
   signatures: string[] - The signatures for the transaction in base64 format
@@ -57,9 +57,7 @@ export class OraichainBroadcastTxFromBytesTool extends Tool {
       .string()
       .describe("The signed transaction auth info in base64 format"),
     signatures: z.array(
-      z
-        .string()
-        .describe("The signatures for the transaction in base64 format"),
+      z.string().describe("The signatures for the transaction in base64 format")
     ),
   });
 
@@ -73,7 +71,7 @@ export class OraichainBroadcastTxFromBytesTool extends Tool {
         await this.oraichainKit.broadcastTxSyncFromDirectSignDocAndSignature(
           input.signedBodyBytes,
           input.signedAuthBytes,
-          input.signatures,
+          input.signatures
         );
 
       return JSON.stringify({
@@ -95,16 +93,14 @@ export class OraichainBroadcastSignDocTool extends Tool {
   name = "oraichain_broadcast_sign_doc";
   description = `Broadcast a sign doc base64 to the network.
 
-  Inputs (input is a JSON string):
+  Inputs (input is an object):
   signDocBase64: string - The sign doc base64
-  publicKey: string - The public key
   signature: string - The signature
   `;
 
   // @ts-ignore
   schema = z.object({
     signDocBase64: z.string().describe("The sign doc base64"),
-    publicKey: z.string().describe("The public key"),
     signature: z.string().describe("The signature"),
   });
 
@@ -116,7 +112,7 @@ export class OraichainBroadcastSignDocTool extends Tool {
     try {
       const txHash = await this.oraichainKit.broadcastSignDocBase64(
         input.signDocBase64,
-        input.signature,
+        input.signature
       );
 
       return JSON.stringify({
@@ -124,6 +120,68 @@ export class OraichainBroadcastSignDocTool extends Tool {
         message: `Transaction successfully broadcasted with hash: ${txHash}`,
         data: { txHash },
       });
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  }
+}
+
+export class OraichainTxHashInfoTool extends Tool {
+  name = "oraichain_tx_hash_info";
+  description = `Get the info of a transaction hash. You can use this tool to get the info of a transaction hash after broadcasting a transaction. It can be used to check the status of a transaction and get the transaction details. It is a proof that the transaction is successfully executed.
+
+  Note: code 0 means the transaction is successfully executed. non-zero code means the transaction is failed.
+
+  Inputs (input is an object):
+  txHash: string - The transaction hash in hex format.
+  `;
+
+  // @ts-ignore
+  schema = z.object({
+    txHash: z
+      .string()
+      .describe(
+        "The transaction hash in hex format. You can get the transaction hash from the response of the broadcast transaction tools."
+      ),
+  });
+
+  constructor(private oraichainKit: OraichainAgentKit) {
+    super();
+  }
+
+  protected async _call(input: z.infer<typeof this.schema>): Promise<string> {
+    try {
+      const { txResponse } = await this.oraichainKit.queryClient.tx.getTx(
+        input.txHash
+      );
+
+      return JSON.stringify(
+        {
+          status: "success",
+          message: `Transaction info: ${JSON.stringify(
+            txResponse,
+            (_, value) => {
+              // If the value is a BigInt, convert it to a string with "n" suffix
+              if (typeof value === "bigint") {
+                return value.toString();
+              }
+              return value; // Otherwise, return the value unchanged
+            }
+          )}`,
+          data: { txResponse },
+        },
+        (_, value) => {
+          // If the value is a BigInt, convert it to a string with "n" suffix
+          if (typeof value === "bigint") {
+            return value.toString();
+          }
+          return value; // Otherwise, return the value unchanged
+        }
+      );
     } catch (error: any) {
       return JSON.stringify({
         status: "error",
@@ -176,7 +234,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema",
+          "Received tool input did not match expected schema"
         );
       }
     });

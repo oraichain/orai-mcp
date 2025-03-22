@@ -8,7 +8,7 @@ export class UndelegateTool extends Tool {
   name = "undelegate";
   description = `Undelegate tokens from a validator on Oraichain.
 
-  Inputs (input is a JSON string):
+  Inputs (input is an object):
   delegatorAddress: string - The address of the delegator
   validatorAddress: string - The address of the validator to undelegate from
   amount: string - The amount to undelegate in ORAI
@@ -50,7 +50,7 @@ export class UndelegateTool extends Tool {
           },
         ],
         "auto",
-        "",
+        ""
       );
 
       return JSON.stringify({
@@ -119,7 +119,7 @@ if (import.meta.vitest) {
           },
         ],
         "auto",
-        "",
+        ""
       );
     });
 
@@ -133,7 +133,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema",
+          "Received tool input did not match expected schema"
         );
       }
     });

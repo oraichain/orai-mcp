@@ -6,7 +6,7 @@ export class GetDelegationsTool extends Tool {
   name = "getDelegations";
   description = `Get all delegations for a delegator on Oraichain.
 
-  Inputs (input is a JSON string):
+  Inputs (input is an object):
   delegatorAddress: string - The address of the delegator
   `;
 
@@ -23,7 +23,7 @@ export class GetDelegationsTool extends Tool {
     try {
       const delegations =
         await this.oraichainKit.queryClient.staking.delegatorDelegations(
-          input.delegatorAddress,
+          input.delegatorAddress
         );
 
       return JSON.stringify({
@@ -85,10 +85,10 @@ if (import.meta.vitest) {
 
       expect(parsedResult.status).toBe("success");
       expect(parsedResult.data.delegations).toEqual(
-        mockResponse.delegationResponses,
+        mockResponse.delegationResponses
       );
       expect(mockDelegatorDelegations).toHaveBeenCalledWith(
-        input.delegatorAddress,
+        input.delegatorAddress
       );
     });
 
@@ -101,7 +101,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema",
+          "Received tool input did not match expected schema"
         );
       }
     });

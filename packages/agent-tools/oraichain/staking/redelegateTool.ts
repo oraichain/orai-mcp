@@ -8,7 +8,7 @@ export class RedelegateTool extends Tool {
   name = "redelegate";
   description = `Redelegate tokens from one validator to another on Oraichain.
 
-  Inputs (input is a JSON string):
+  Inputs (input is an object):
   delegatorAddress: string - The address of the delegator
   validatorSrcAddress: string - The address of the source validator
   validatorDstAddress: string - The address of the destination validator
@@ -55,7 +55,7 @@ export class RedelegateTool extends Tool {
           },
         ],
         "auto",
-        "",
+        ""
       );
 
       return JSON.stringify({
@@ -126,7 +126,7 @@ if (import.meta.vitest) {
           },
         ],
         "auto",
-        "",
+        ""
       );
     });
 
@@ -140,7 +140,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema",
+          "Received tool input did not match expected schema"
         );
       }
     });
