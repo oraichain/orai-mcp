@@ -5,6 +5,11 @@ export default defineConfig({
     globals: true,
     environment: "node",
     include: ["**/*.ts"],
-    exclude: ["**/index.ts", "node_modules/**", "dist/**", "**/vitest.config.ts"],
+    exclude: [
+      "**/index.ts",
+      "node_modules/**",
+      "dist/**",
+      "**/vitest.config.ts",
+    ],
   },
 });

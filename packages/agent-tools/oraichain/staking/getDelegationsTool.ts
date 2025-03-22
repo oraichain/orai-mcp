@@ -23,7 +23,7 @@ export class GetDelegationsTool extends Tool {
     try {
       const delegations =
         await this.oraichainKit.queryClient.staking.delegatorDelegations(
-          input.delegatorAddress
+          input.delegatorAddress,
         );
 
       return JSON.stringify({
@@ -85,10 +85,10 @@ if (import.meta.vitest) {
 
       expect(parsedResult.status).toBe("success");
       expect(parsedResult.data.delegations).toEqual(
-        mockResponse.delegationResponses
+        mockResponse.delegationResponses,
       );
       expect(mockDelegatorDelegations).toHaveBeenCalledWith(
-        input.delegatorAddress
+        input.delegatorAddress,
       );
     });
 
@@ -101,7 +101,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema"
+          "Received tool input did not match expected schema",
         );
       }
     });

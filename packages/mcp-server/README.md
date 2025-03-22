@@ -85,7 +85,7 @@ vite-node test/oraichainSSEMCPServer.ts
 vite-node test/oraichainSSEMCPClientWithAgent.ts
 ```
 
-Then, start asking questions to the agent, for example: 
+Then, start asking questions to the agent, for example:
 
 - `query balance of wallet orai1f5nyvnx5ks738d5ys7pwa0evc42v6ff043h6d2 with denom orai`
 
@@ -139,5 +139,4 @@ Local setup for dev:
     }
   }
 }
-
 ```

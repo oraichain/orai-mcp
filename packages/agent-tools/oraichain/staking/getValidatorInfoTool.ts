@@ -22,11 +22,11 @@ export class GetValidatorInfoTool extends Tool {
   protected async _call(input: z.infer<typeof this.schema>): Promise<string> {
     try {
       const validator = await this.oraichainKit.queryClient.staking.validator(
-        input.validatorAddress
+        input.validatorAddress,
       );
       const commission =
         await this.oraichainKit.queryClient.distribution.validatorCommission(
-          input.validatorAddress
+          input.validatorAddress,
         );
 
       return JSON.stringify({
@@ -126,7 +126,7 @@ if (import.meta.vitest) {
       });
       expect(mockValidator).toHaveBeenCalledWith(input.validatorAddress);
       expect(mockValidatorCommission).toHaveBeenCalledWith(
-        input.validatorAddress
+        input.validatorAddress,
       );
     });
 
@@ -139,7 +139,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema"
+          "Received tool input did not match expected schema",
         );
       }
     });

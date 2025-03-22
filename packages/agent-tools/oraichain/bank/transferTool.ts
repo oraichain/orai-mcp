@@ -37,7 +37,7 @@ export class OraichainTokenTransferTool extends Tool {
         input.senderAddress,
         input.publicKey,
         input.recipient,
-        input.amount
+        input.amount,
       );
 
       return JSON.stringify({
@@ -95,7 +95,7 @@ if (import.meta.vitest) {
         input.senderAddress,
         input.publicKey,
         input.recipient,
-        input.amount
+        input.amount,
       );
     });
 
@@ -109,7 +109,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema"
+          "Received tool input did not match expected schema",
         );
       }
     });

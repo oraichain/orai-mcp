@@ -27,7 +27,7 @@ export class OraichainBalanceTool extends Tool {
     try {
       const coin = await this.oraichainKit.getBalance(
         input.address,
-        input.denom
+        input.denom,
       );
       const amountAfterDecimals = +coin.amount / 10 ** 6;
       const coinAfterDecimals = {
@@ -91,7 +91,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema"
+          "Received tool input did not match expected schema",
         );
       }
     });

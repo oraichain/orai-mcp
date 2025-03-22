@@ -83,7 +83,7 @@ export class OraichainAgentKit {
     public readonly aminoTypes = new AminoTypes({
       ...createDefaultAminoConverters(),
       ...createWasmAminoConverters(),
-    })
+    }),
   ) {}
 
   static async connect(rpcUrl: string) {
@@ -96,7 +96,7 @@ export class OraichainAgentKit {
       setupWasmExtension,
       setupMintExtension,
       setupTxExtension,
-      setupDistributionExtension
+      setupDistributionExtension,
     );
     return new OraichainAgentKit(rpcUrl, client, queryClient);
   }
@@ -113,7 +113,7 @@ export class OraichainAgentKit {
     senderAddress: string,
     publickey: string,
     toAddress: string,
-    amount: Coin
+    amount: Coin,
   ) {
     const signDoc = await this.buildSignDoc(
       senderAddress,
@@ -129,7 +129,7 @@ export class OraichainAgentKit {
         },
       ],
       "auto",
-      ""
+      "",
     );
     return {
       signDoc: Buffer.from(makeSignBytes(signDoc)).toString("base64"),
@@ -151,7 +151,7 @@ export class OraichainAgentKit {
     messages: readonly EncodeObject[],
     stdFee: StdFee | "auto",
     memo: string = "",
-    timeoutHeight?: bigint
+    timeoutHeight?: bigint,
   ) {
     const { accountNumber, sequence } =
       await this.client.getSequence(senderAddress);
@@ -167,13 +167,13 @@ export class OraichainAgentKit {
         senderAddress,
         secp256k1Pubkey,
         messages,
-        memo
+        memo,
       );
       const common = await OraiCommon.initializeFromGitRaw({
         chainIds: ["Oraichain"],
       });
       const chainInfo = common.chainInfos.cosmosChains.find(
-        (chain) => chain.chainId === "Oraichain"
+        (chain) => chain.chainId === "Oraichain",
       );
       if (!chainInfo) {
         throw new Error("Oraichain chain info not found");
@@ -187,8 +187,8 @@ export class OraichainAgentKit {
         GasPrice.fromString(
           `${
             feeCurrency.gasPriceStep ? feeCurrency.gasPriceStep.low : "0.001"
-          }${ORAI}`
-        )
+          }${ORAI}`,
+        ),
       );
     } else {
       fee = stdFee;
@@ -214,7 +214,7 @@ export class OraichainAgentKit {
       fee.amount,
       gasLimit,
       fee.granter,
-      fee.payer
+      fee.payer,
     );
     return makeSignDoc(txBodyBytes, authInfoBytes, chainId, accountNumber);
   }
@@ -223,7 +223,7 @@ export class OraichainAgentKit {
     const signatureBuffer = Buffer.from(signature, "base64");
     if (signatureBuffer.length !== 64) {
       throw new Error(
-        "Signature must be 64 bytes long. Cosmos SDK uses a 2x32 byte fixed length encoding for the secp256k1 signature integers r and s."
+        "Signature must be 64 bytes long. Cosmos SDK uses a 2x32 byte fixed length encoding for the secp256k1 signature integers r and s.",
       );
     }
     const txRaw = TxRaw.fromPartial({
@@ -257,7 +257,7 @@ export class OraichainAgentKit {
   async broadcastTxSyncFromDirectSignDocAndSignature(
     signedBodyBytes: Binary,
     signedAuthBytes: Binary,
-    signatures: Binary[]
+    signatures: Binary[],
   ) {
     const txRaw = TxRaw.fromPartial({
       bodyBytes: fromBase64(signedBodyBytes),
@@ -276,7 +276,7 @@ export class OraichainAgentKit {
   async broadcastTxSyncFromStdSignDocAndSignature(
     signedDoc: StdSignDoc,
     signature: StdSignature,
-    pubkeyType: PubkeyType = "/cosmos.crypto.secp256k1.PubKey"
+    pubkeyType: PubkeyType = "/cosmos.crypto.secp256k1.PubKey",
   ) {
     const signedTxBody = {
       messages: signedDoc.msgs.map((msg) => this.aminoTypes.fromAmino(msg)),
@@ -301,7 +301,7 @@ export class OraichainAgentKit {
       signedGasLimit,
       signedDoc.fee.granter,
       signedDoc.fee.payer,
-      SignMode.SIGN_MODE_LEGACY_AMINO_JSON
+      SignMode.SIGN_MODE_LEGACY_AMINO_JSON,
     );
     const txRaw = TxRaw.fromPartial({
       bodyBytes: signedTxBodyBytes,
@@ -316,7 +316,7 @@ export class OraichainAgentKit {
     senderAddress: string,
     senderPubkey: Secp256k1Pubkey,
     messages: readonly EncodeObject[],
-    memo: string
+    memo: string,
   ) {
     const anyMsgs = messages.map((m) => this.registry.encodeAsAny(m));
     const { sequence } = await this.client.getSequence(senderAddress);
@@ -324,7 +324,7 @@ export class OraichainAgentKit {
       anyMsgs,
       memo,
       senderPubkey,
-      sequence
+      sequence,
     );
     assertDefined(gasInfo);
     return Int53.fromString(gasInfo.gasUsed.toString()).toNumber();
@@ -336,12 +336,12 @@ export class OraichainAgentKitWithSigner {
     public readonly agentKit: OraichainAgentKit,
     public readonly signer: DirectSecp256k1HdWallet,
     public readonly signerAmino: Secp256k1HdWallet,
-    public readonly signingCosmWasmClient: SigningCosmWasmClient
+    public readonly signingCosmWasmClient: SigningCosmWasmClient,
   ) {}
 
   static async connectWithAgentKit(
     agentKit: OraichainAgentKit,
-    mnemonic: string
+    mnemonic: string,
   ) {
     const signer = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
       prefix: ORAI,
@@ -356,13 +356,13 @@ export class OraichainAgentKitWithSigner {
         gasPrice: GasPrice.fromString("0.001" + ORAI),
         registry: agentKit.registry,
         aminoTypes: agentKit.aminoTypes,
-      }
+      },
     );
     return new OraichainAgentKitWithSigner(
       agentKit,
       signer,
       signerAmino,
-      signingCosmWasmClient
+      signingCosmWasmClient,
     );
   }
 
@@ -374,7 +374,7 @@ export class OraichainAgentKitWithSigner {
   async sign(
     signDocBase64: Binary,
     accountIndex: number = 0,
-    direct: boolean = true
+    direct: boolean = true,
   ) {
     if (direct) {
       return this.signDirect(signDocBase64, accountIndex);
@@ -395,7 +395,7 @@ export class OraichainAgentKitWithSigner {
 
   async signAmino(signDocBase64: Binary, accountIndex: number = 0) {
     const signDoc: StdSignDoc = JSON.parse(
-      Buffer.from(signDocBase64, "base64").toString("utf-8")
+      Buffer.from(signDocBase64, "base64").toString("utf-8"),
     );
     const accounts = await this.signerAmino.getAccounts();
     const wallet = accounts[accountIndex];
@@ -403,7 +403,7 @@ export class OraichainAgentKitWithSigner {
     return {
       signDoc: signDocBase64,
       signature: Buffer.from(JSON.stringify(response.signature)).toString(
-        "base64"
+        "base64",
       ),
     };
   }

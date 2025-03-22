@@ -22,6 +22,7 @@ import {
   OraichainSignTool,
 } from "@oraichain/agent-tools";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { oraichainRpcUrl, mnemonic } from "./config.js";
 
 /**
  * Helper to start the MCP server with stdio transport
@@ -47,7 +48,7 @@ export async function startMcpServer(
   options: {
     name: string;
     version: string;
-  }
+  },
 ) {
   try {
     const server = createMcpServer(tools, options);
@@ -62,7 +63,7 @@ export async function startMcpServer(
 }
 
 async function main() {
-  const agent = await OraichainAgentKit.connect(process.env.RPC_URL!);
+  const agent = await OraichainAgentKit.connect(oraichainRpcUrl);
 
   const ORAICHAIN_ACTIONS = [
     new OraichainBalanceTool(agent),
@@ -78,12 +79,9 @@ async function main() {
     new OraichainBroadcastSignDocTool(agent),
   ];
 
-  if (process.env.MNEMONIC) {
+  if (mnemonic) {
     const agentWithSigner =
-      await OraichainAgentKitWithSigner.connectWithAgentKit(
-        agent,
-        process.env.MNEMONIC!
-      );
+      await OraichainAgentKitWithSigner.connectWithAgentKit(agent, mnemonic);
 
     const SIGNER_ACTIONS = [new OraichainSignTool(agentWithSigner)];
     ORAICHAIN_ACTIONS.push(...(SIGNER_ACTIONS as any));

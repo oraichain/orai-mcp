@@ -31,7 +31,7 @@ export class OraichainSignTool extends Tool {
       const response = await this.oraichainKit.sign(
         input.signDocBase64,
         input.accountIndex,
-        input.direct
+        input.direct,
       );
 
       return JSON.stringify({
@@ -82,7 +82,7 @@ if (import.meta.vitest) {
       expect(mockSign).toHaveBeenCalledWith(
         input.signDocBase64,
         input.accountIndex,
-        input.direct
+        input.direct,
       );
     });
 
@@ -95,7 +95,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema"
+          "Received tool input did not match expected schema",
         );
       }
     });
@@ -137,7 +137,7 @@ if (import.meta.vitest) {
       expect(mockSign).toHaveBeenCalledWith(
         input.signDocBase64,
         input.accountIndex,
-        true // default value
+        true, // default value
       );
     });
   });

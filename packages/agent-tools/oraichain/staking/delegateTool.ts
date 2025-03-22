@@ -69,7 +69,7 @@ export class DelegateTool extends Tool {
           },
         ],
         "auto",
-        ""
+        "",
       );
 
       return JSON.stringify({
@@ -138,7 +138,7 @@ if (import.meta.vitest) {
           },
         ],
         "auto",
-        ""
+        "",
       );
     });
 
@@ -152,7 +152,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema"
+          "Received tool input did not match expected schema",
         );
       }
     });

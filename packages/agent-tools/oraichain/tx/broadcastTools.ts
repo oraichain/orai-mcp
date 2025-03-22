@@ -57,7 +57,9 @@ export class OraichainBroadcastTxFromBytesTool extends Tool {
       .string()
       .describe("The signed transaction auth info in base64 format"),
     signatures: z.array(
-      z.string().describe("The signatures for the transaction in base64 format")
+      z
+        .string()
+        .describe("The signatures for the transaction in base64 format"),
     ),
   });
 
@@ -71,7 +73,7 @@ export class OraichainBroadcastTxFromBytesTool extends Tool {
         await this.oraichainKit.broadcastTxSyncFromDirectSignDocAndSignature(
           input.signedBodyBytes,
           input.signedAuthBytes,
-          input.signatures
+          input.signatures,
         );
 
       return JSON.stringify({
@@ -114,7 +116,7 @@ export class OraichainBroadcastSignDocTool extends Tool {
     try {
       const txHash = await this.oraichainKit.broadcastSignDocBase64(
         input.signDocBase64,
-        input.signature
+        input.signature,
       );
 
       return JSON.stringify({
@@ -174,7 +176,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema"
+          "Received tool input did not match expected schema",
         );
       }
     });

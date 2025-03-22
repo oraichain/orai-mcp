@@ -24,7 +24,7 @@ import { sha256 } from "@cosmjs/crypto";
 (async () => {
   // setup SSE Server for testing
   const transport = new SSEClientTransport(
-    new URL("http://localhost:8080/sse")
+    new URL("http://localhost:8080/sse"),
   );
   const sseClient = new Client({ name: "test-client", version: "0.0.1" });
   await sseClient.connect(transport);
@@ -40,7 +40,7 @@ async function testSignAndBroadcastDirectTx(sseClient: Client) {
   // setup wallet to sign
   const wallet = await DirectSecp256k1HdWallet.fromMnemonic(
     process.env.MNEMONIC!,
-    { prefix: "orai" }
+    { prefix: "orai" },
   );
   const accounts = await wallet.getAccounts();
 
@@ -50,7 +50,7 @@ async function testSignAndBroadcastDirectTx(sseClient: Client) {
     {
       gasPrice: GasPrice.fromString("0.0001orai"),
       registry: new Registry([...defaultRegistryTypes, ...wasmTypes]),
-    }
+    },
   );
 
   const transferMessageResult = await sseClient.callTool({
@@ -63,14 +63,14 @@ async function testSignAndBroadcastDirectTx(sseClient: Client) {
   });
 
   const message = JSON.parse(
-    (transferMessageResult.content as any)[0].text
+    (transferMessageResult.content as any)[0].text,
   ).data;
 
   const txRaw = await client.sign(
     accounts[0].address,
     [message],
     { amount: [{ amount: "0", denom: ORAI }], gas: "20000000" },
-    ""
+    "",
   );
 
   const txHashData = await sseClient.callTool({
@@ -93,7 +93,7 @@ async function testSignAndBroadcastAminoTx(sseClient: Client) {
   // sign amino tx
   const legacyWallet = await Secp256k1HdWallet.fromMnemonic(
     process.env.MNEMONIC!,
-    { prefix: "orai" }
+    { prefix: "orai" },
   );
   const accounts = await legacyWallet.getAccounts();
   const client = await SigningCosmWasmClient.connectWithSigner(
@@ -102,7 +102,7 @@ async function testSignAndBroadcastAminoTx(sseClient: Client) {
     {
       gasPrice: GasPrice.fromString("0.0001orai"),
       registry: new Registry([...defaultRegistryTypes, ...wasmTypes]),
-    }
+    },
   );
   const signer = accounts[0];
 
@@ -117,7 +117,7 @@ async function testSignAndBroadcastAminoTx(sseClient: Client) {
   });
 
   const message = JSON.parse(
-    (transferMessageResult.content as any)[0].text
+    (transferMessageResult.content as any)[0].text,
   ).data;
 
   // prep signing data for amino signing
@@ -141,8 +141,8 @@ async function testSignAndBroadcastAminoTx(sseClient: Client) {
       chainId,
       "",
       accountNumber,
-      sequence
-    )
+      sequence,
+    ),
   );
 
   // broadcast amino tx
@@ -167,7 +167,7 @@ async function testSignAndBroadcastTxBytes(sseClient: Client) {
   // setup wallet to sign
   const wallet = await DirectSecp256k1HdWallet.fromMnemonic(
     process.env.MNEMONIC!,
-    { prefix: "orai" }
+    { prefix: "orai" },
   );
   const accounts = await wallet.getAccounts();
 
@@ -177,7 +177,7 @@ async function testSignAndBroadcastTxBytes(sseClient: Client) {
     {
       gasPrice: GasPrice.fromString("0.0001orai"),
       registry: new Registry([...defaultRegistryTypes, ...wasmTypes]),
-    }
+    },
   );
 
   const transferMessageResult = await sseClient.callTool({
@@ -190,14 +190,14 @@ async function testSignAndBroadcastTxBytes(sseClient: Client) {
   });
 
   const message = JSON.parse(
-    (transferMessageResult.content as any)[0].text
+    (transferMessageResult.content as any)[0].text,
   ).data;
 
   const txRaw = await client.sign(
     accounts[0].address,
     [message],
     { amount: [{ amount: "0", denom: ORAI }], gas: "20000000" },
-    ""
+    "",
   );
   const txBytes = TxRaw.encode(txRaw).finish();
   const txHashData = await sseClient.callTool({
