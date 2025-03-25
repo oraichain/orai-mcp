@@ -1,0 +1,26 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+build:
+  dockerBuildPath: ../..
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    properties:
+      RPC_URL:
+        type: string
+        default: https://rpc.orai.io
+        description: RPC endpoint for Oraichain agent.
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({
+      command: 'node',
+      args: ['--experimental-specifier-resolution=node', 'packages/mcp-server/dist/index.js'],
+      env: {
+        RPC_URL: config.RPC_URL
+      }
+    })
+  exampleConfig:
+    RPC_URL: https://rpc.orai.io
