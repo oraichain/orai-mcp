@@ -1,5 +1,7 @@
 # Test Oraichain MCP client & server
 
+[![smithery badge](https://smithery.ai/badge/@oraichain/orai-multichain-mcp)](https://smithery.ai/server/@oraichain/orai-multichain-mcp)
+
 ## Install dependencies
 
 ```bash
@@ -110,6 +112,14 @@ For SSE:
 ![SSE](image.png)
 
 # Setup for Claude Desktop
+
+### Installing via Smithery
+
+To install orai-multichain-mcp for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@oraichain/orai-multichain-mcp):
+
+```bash
+npx -y @smithery/cli install @oraichain/orai-multichain-mcp --client claude
+```
 
 ```json
 {
