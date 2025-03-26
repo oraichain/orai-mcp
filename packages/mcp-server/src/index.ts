@@ -23,7 +23,11 @@ import {
   OraichainAccountTool,
   GetAllValidatorsInfoTool,
   OraichainTxHashInfoTool,
+  LpFetchRaydiumPoolTool,
+  CoinGeckoTopTokensTool,
+  CoinGeckoHistoricalDataTool,
 } from "@oraichain/agent-tools";
+
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { oraichainRpcUrl, mnemonic } from "./config.js";
 
@@ -82,6 +86,9 @@ async function main() {
     new OraichainBroadcastTxFromBytesTool(agent),
     new OraichainBroadcastSignDocTool(agent),
     new OraichainTxHashInfoTool(agent),
+    new LpFetchRaydiumPoolTool(),
+    new CoinGeckoTopTokensTool(),
+    new CoinGeckoHistoricalDataTool(),
   ];
 
   if (mnemonic) {
