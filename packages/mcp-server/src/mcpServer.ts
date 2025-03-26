@@ -10,7 +10,7 @@ export function createMcpServer(
   options: {
     name: string;
     version: string;
-  }
+  },
 ) {
   // Create MCP server instance
   const server = new McpServer({

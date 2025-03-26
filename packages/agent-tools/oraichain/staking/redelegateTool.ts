@@ -8,7 +8,7 @@ export class RedelegateTool extends Tool {
   name = "redelegate";
   description = `Redelegate tokens from one validator to another on Oraichain.
 
-  Inputs (input is a JSON string):
+  Inputs (input is an object):
   delegatorAddress: string - The address of the delegator
   validatorSrcAddress: string - The address of the source validator
   validatorDstAddress: string - The address of the destination validator

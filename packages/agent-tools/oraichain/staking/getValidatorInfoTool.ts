@@ -3,10 +3,10 @@ import { z } from "zod";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
 
 export class GetValidatorInfoTool extends Tool {
-  name = "getValidatorInfo";
-  description = `Get validator information including commission on Oraichain.
+  name = "get_validator_info";
+  description = `Get validator information including commission on Oraichain given a validator address.
 
-  Inputs (input is a JSON string):
+  Inputs (input is an object):
   validatorAddress: string - The address of the validator
   `;
 
@@ -29,13 +29,82 @@ export class GetValidatorInfoTool extends Tool {
           input.validatorAddress
         );
 
-      return JSON.stringify({
-        status: "success",
-        data: {
-          validator: validator.validator,
-          commission: commission.commission,
+      return JSON.stringify(
+        {
+          status: "success",
+          data: {
+            validator: validator.validator,
+            commission: commission.commission,
+          },
         },
+        (_, value) => {
+          // If the value is a BigInt, convert it to a string with "n" suffix
+          if (typeof value === "bigint") {
+            return value.toString();
+          }
+          return value; // Otherwise, return the value unchanged
+        }
+      );
+    } catch (error: any) {
+      return JSON.stringify({
+        status: "error",
+        message: error.message,
+        code: error.code || "UNKNOWN_ERROR",
       });
+    }
+  }
+}
+
+export class GetAllValidatorsInfoTool extends Tool {
+  name = "get_all_validators_info";
+  description = `Get all validators information including commission on Oraichain. You don't need to provide any input. This tool is useful when you want to get all validators information.
+
+  It will return a list of validators with their information including moniker, operator address, commission rate, etc. You should use this tool when users want to ask you about a validator without knowing the validator address, but only know the moniker.
+
+  Inputs (input is empty)
+  `;
+
+  // @ts-ignore
+  schema = z.object({});
+
+  constructor(private readonly oraichainKit: OraichainAgentKit) {
+    super();
+  }
+
+  protected async _call(_input: z.infer<typeof this.schema>): Promise<string> {
+    try {
+      const validators =
+        await this.oraichainKit.queryClient.staking.validators(
+          "BOND_STATUS_BONDED"
+        );
+
+      const validatorsWithCommission = await Promise.all(
+        validators.validators.map(async (validator) => {
+          const commission =
+            await this.oraichainKit.queryClient.distribution.validatorCommission(
+              validator.operatorAddress
+            );
+
+          return {
+            validator,
+            commission: commission.commission,
+          };
+        })
+      );
+
+      return JSON.stringify(
+        {
+          status: "success",
+          data: validatorsWithCommission,
+        },
+        (_, value) => {
+          // If the value is a BigInt, convert it to a string with "n" suffix
+          if (typeof value === "bigint") {
+            return value.toString();
+          }
+          return value; // Otherwise, return the value unchanged
+        }
+      );
     } catch (error: any) {
       return JSON.stringify({
         status: "error",

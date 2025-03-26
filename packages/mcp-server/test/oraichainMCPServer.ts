@@ -36,7 +36,7 @@ export async function startMcpServer(
   options: {
     name: string;
     version: string;
-  }
+  },
 ) {
   try {
     const server = createMcpServer(tools, options);

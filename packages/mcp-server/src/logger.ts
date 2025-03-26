@@ -34,7 +34,7 @@ export const initLogger = (label: string, loglevel?: string) =>
         return `${info.timestamp} [${info.level.toUpperCase()}] [${
           info.label
         }]: ${info.message}`;
-      })
+      }),
     ),
     transports: [new transports.Console(), captureTransport],
   });

@@ -69,7 +69,7 @@ async function initializeAgent(tools: BindToolsInput[]) {
 class MCPClient {
   constructor(
     private readonly mcp: Client,
-    private readonly agent: CompiledStateGraph<StateType<{}>, any>
+    private readonly agent: CompiledStateGraph<StateType<{}>, any>,
   ) {}
 
   static async connectToServer(serverScriptPath: string) {
@@ -138,7 +138,7 @@ class MCPClient {
             });
             // console.debug("response: ", response);
             finalText.push(
-              response.messages[response.messages.length - 1].content
+              response.messages[response.messages.length - 1].content,
             );
           }
         }
@@ -162,7 +162,7 @@ class MCPClient {
 
       while (true) {
         const message: string = await new Promise((resolve) =>
-          rl.question("\nQuery: ", (answer) => resolve(answer))
+          rl.question("\nQuery: ", (answer) => resolve(answer)),
         );
         if (message.toLowerCase() === "quit") {
           break;

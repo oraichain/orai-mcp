@@ -4,9 +4,9 @@ import { z } from "zod";
 
 export class OraichainTokenTransferTool extends Tool {
   name = "oraichain_token_transfer";
-  description = `Transfer a token with an amount to a recipient address.
+  description = `Generate a transfer message for a token with an amount to a recipient address.
 
-  Inputs (input is a JSON string):
+  Inputs (input is an object):
   senderAddress: string - The sender address
   recipient: string - The recipient address
   publicKey: string - The public key of the sender
@@ -42,7 +42,7 @@ export class OraichainTokenTransferTool extends Tool {
 
       return JSON.stringify({
         status: "success",
-        message: `Successfully transferred ${input.amount.amount}${input.amount.denom} from ${input.senderAddress} to ${input.recipient}`,
+        message: `Successfully generated a transfer message for ${input.amount.amount}${input.amount.denom} from ${input.senderAddress} to ${input.recipient}`,
         data: message,
       });
     } catch (error: any) {

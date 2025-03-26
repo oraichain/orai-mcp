@@ -8,7 +8,7 @@ export class UndelegateTool extends Tool {
   name = "undelegate";
   description = `Undelegate tokens from a validator on Oraichain.
 
-  Inputs (input is a JSON string):
+  Inputs (input is an object):
   delegatorAddress: string - The address of the delegator
   validatorAddress: string - The address of the validator to undelegate from
   amount: string - The amount to undelegate in ORAI

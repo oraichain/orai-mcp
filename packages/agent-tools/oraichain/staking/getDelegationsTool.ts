@@ -6,7 +6,7 @@ export class GetDelegationsTool extends Tool {
   name = "getDelegations";
   description = `Get all delegations for a delegator on Oraichain.
 
-  Inputs (input is a JSON string):
+  Inputs (input is an object):
   delegatorAddress: string - The address of the delegator
   `;
 

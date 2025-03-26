@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
 import "dotenv/config";
-import { OraichainAgentKit } from "@oraichain/agent-kit";
+import {
+  OraichainAgentKit,
+  OraichainAgentKitWithSigner,
+} from "@oraichain/agent-kit";
 import { Tool } from "langchain/tools";
 import { createMcpServer } from "./mcpServer.js";
 import {
@@ -16,8 +19,13 @@ import {
   RedelegateTool,
   UndelegateTool,
   ClaimCommissionTool,
+  OraichainSignTool,
+  OraichainAccountTool,
+  GetAllValidatorsInfoTool,
+  OraichainTxHashInfoTool,
 } from "@oraichain/agent-tools";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { oraichainRpcUrl, mnemonic } from "./config.js";
 
 /**
  * Helper to start the MCP server with stdio transport
@@ -58,12 +66,14 @@ export async function startMcpServer(
 }
 
 async function main() {
-  const agent = await OraichainAgentKit.connect(process.env.RPC_URL!);
+  const agent = await OraichainAgentKit.connect(oraichainRpcUrl);
+
   const ORAICHAIN_ACTIONS = [
     new OraichainBalanceTool(agent),
     new DelegateTool(agent),
     new GetDelegationsTool(agent),
     new GetValidatorInfoTool(agent),
+    new GetAllValidatorsInfoTool(agent),
     new RedelegateTool(agent),
     new UndelegateTool(agent),
     new ClaimCommissionTool(agent),
@@ -71,7 +81,19 @@ async function main() {
     new OraichainBroadcastTxTool(agent),
     new OraichainBroadcastTxFromBytesTool(agent),
     new OraichainBroadcastSignDocTool(agent),
+    new OraichainTxHashInfoTool(agent),
   ];
+
+  if (mnemonic) {
+    const agentWithSigner =
+      await OraichainAgentKitWithSigner.connectWithAgentKit(agent, mnemonic);
+
+    const SIGNER_ACTIONS = [
+      new OraichainSignTool(agentWithSigner),
+      new OraichainAccountTool(agentWithSigner),
+    ];
+    ORAICHAIN_ACTIONS.push(...(SIGNER_ACTIONS as any));
+  }
 
   startMcpServer(ORAICHAIN_ACTIONS as any, {
     name: "oraichain-agent-stdio",

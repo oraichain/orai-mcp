@@ -37,7 +37,7 @@ declare module "hyper-express" {
 // Add writeHead method to HyperExpress Response since SSEServerTransport uses it internally
 HyperExpress.Response.prototype.writeHead = function (
   statusCodeOrName: number | string,
-  headersOrValue?: Record<string, string> | string | string[]
+  headersOrValue?: Record<string, string> | string | string[],
 ) {
   if (typeof statusCodeOrName === "number") {
     this.status(statusCodeOrName);
@@ -61,7 +61,7 @@ app.use(
   cors({
     origin: "*",
     credentials: false,
-  })
+  }),
 );
 
 app.use(async (req, res) => {

@@ -7,7 +7,7 @@ export class ClaimCommissionTool extends Tool {
   name = "claimCommission";
   description = `Claim validator commission rewards on Oraichain.
 
-  Inputs (input is a JSON string):
+  Inputs (input is an object):
   validatorAddress: string - The address of the validator
   publicKey: string - The validator's public key for signing
   `;
