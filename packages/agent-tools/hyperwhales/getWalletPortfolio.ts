@@ -55,11 +55,9 @@ if (import.meta.vitest) {
   describe("HyperWhalesTool", () => {
     it("should fetch latest long/short positions on multiple coins of whales", async () => {
       // TODO: add key before running this test
-      const tool = new GetWalletPortfolioTool(
-        "emtfZGV2X2ZkZjA5ZGFjNTEzNzQ0ZmZhYWRkNjkzODgwNTg2MTI1Og=="
-      );
+      const tool = new GetWalletPortfolioTool("");
       const result = await tool.invoke({
-        address: "0x20c2d95a3dfdca9e9ad12794d5fa6fad99da44f5",
+        address: "0xeadc152ac1014ace57c6b353f89adf5faffe9d55",
       });
       console.log(result);
     });
