@@ -1,7 +1,9 @@
 import { Tool } from "langchain/tools";
 import { z } from "zod";
+import NodeCache from "node-cache";
 
 export class GetAllLongShortPositionTool extends Tool {
+  cache = new NodeCache({ stdTTL: 30 });
   name = "GetAllLongShortPositionsTool";
   description = `
   Fetches the all latest long/short positions of whales across multiple coins. 
@@ -37,6 +39,12 @@ export class GetAllLongShortPositionTool extends Tool {
       throw new Error("Please input limit");
     }
 
+    const cacheKey = `getAllLongShortPosition-${_input.offset}-${_input.limit}`;
+    const cachedResult = this.cache.get<string>(cacheKey);
+    if (cachedResult) {
+      return cachedResult;
+    }
+
     const response = await fetch(
       "https://open-api-v3.coinglass.com/api/hyperliquid/whale-position",
       {
@@ -53,6 +61,8 @@ export class GetAllLongShortPositionTool extends Tool {
       Number(_input.offset),
       Number(_input.offset) + Number(_input.limit)
     );
+
+    this.cache.set(cacheKey, JSON.stringify({ total, data }));
     return JSON.stringify({
       total,
       data,

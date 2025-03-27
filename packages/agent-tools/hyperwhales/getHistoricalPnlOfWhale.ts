@@ -1,7 +1,9 @@
 import { Tool } from "langchain/tools";
 import { z } from "zod";
+import NodeCache from "node-cache";
 
 export class GetHistoricalPnlOfWhaleTool extends Tool {
+  cache = new NodeCache({ stdTTL: 30 });
   name = "GetHistoricalPnlOfWhaleTool";
   description = `
   Fetches the historical profit and loss of a whale.
@@ -24,6 +26,12 @@ export class GetHistoricalPnlOfWhaleTool extends Tool {
   }
 
   async _call(_input: z.infer<typeof this.schema>): Promise<string> {
+    const cacheKey = `getHistoricalPnlOfWhale-${_input.address}`;
+    const cachedResult = this.cache.get<string>(cacheKey);
+    if (cachedResult) {
+      return cachedResult;
+    }
+
     const response = await fetch("https://api.firecrawl.dev/v1/scrape", {
       method: "POST",
       headers: {
@@ -38,6 +46,7 @@ export class GetHistoricalPnlOfWhaleTool extends Tool {
 
     const res = await response.json();
     const data = res?.data;
+    this.cache.set(cacheKey, JSON.stringify(data || ""));
     return JSON.stringify(data || "");
   }
 }
