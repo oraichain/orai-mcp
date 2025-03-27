@@ -2,31 +2,31 @@ import { Tool } from "langchain/tools";
 import { z } from "zod";
 import NodeCache from "node-cache";
 
-export class GetOverallMarketTool extends Tool {
+export class GetHistoricalPnlOfWalletTool extends Tool {
   cache = new NodeCache({ stdTTL: 30 });
-  name = "GetOverallMarketTool";
+  name = "GetHistoricalPnlOfWalletTool";
   description = `
-  Fetches the overall market tool which helps to detect data on positions of the market in overall and latest whale activity.
+  Fetches the historical profit and loss of each wallet. This can be used to fetched pnl of whales or normal user.
 
-  Inputs (a empty JSON string):
+  Inputs (JSON string):
+  address: string - The address of the whale.
 
   Output (JSON string):
-  The data will contain the information as follows:
-  + Total long/short positions in volume
-  + Total long/short margin in volume
-  + Total long PNL and total short PNL which show the profit and loss of long and short positions in overall market.
-  + Latest whale activity which show the latest trade of whales
+  The data will contain the total profit and loss of the whale by specific time range and in total.
+  Also including their current trading positions.
   `;
 
   // @ts-ignore
-  schema = z.object({});
+  schema = z.object({
+    address: z.string(),
+  });
 
   constructor(protected readonly FC_API_KEY: string) {
     super();
   }
 
   async _call(_input: z.infer<typeof this.schema>): Promise<string> {
-    const cacheKey = `getOverallMarket`;
+    const cacheKey = `getHistoricalPnlOfWhale-${_input.address}`;
     const cachedResult = this.cache.get<string>(cacheKey);
     if (cachedResult) {
       return cachedResult;
@@ -39,7 +39,7 @@ export class GetOverallMarketTool extends Tool {
         Authorization: `Bearer ${this.FC_API_KEY}`,
       },
       body: JSON.stringify({
-        url: "https://www.coinglass.com/hyperliquid",
+        url: `https://www.coinglass.com/hyperliquid/${_input.address}`,
         formats: ["markdown"],
       }),
     });
@@ -54,11 +54,13 @@ export class GetOverallMarketTool extends Tool {
 if (import.meta.vitest) {
   const { describe, it } = import.meta.vitest;
 
-  describe("HyperWhalesTool", () => {
+  describe.skip("HyperWhalesTool", () => {
     it("should fetch latest long/short positions on multiple coins of whales", async () => {
       // TODO: add key before running this test
-      const tool = new GetOverallMarketTool("");
-      const result = await tool.invoke({});
+      const tool = new GetHistoricalPnlOfWalletTool("");
+      const result = await tool.invoke({
+        address: "0x20c2d95a3dfdca9e9ad12794d5fa6fad99da44f5",
+      });
       console.log(result);
     });
   }, 60000);

@@ -2,18 +2,17 @@ import { Tool } from "langchain/tools";
 import { z } from "zod";
 import NodeCache from "node-cache";
 
-export class GetHistoricalPnlOfWhaleTool extends Tool {
+export class GetWalletPortfolioTool extends Tool {
   cache = new NodeCache({ stdTTL: 30 });
-  name = "GetHistoricalPnlOfWhaleTool";
+  name = "GetWalletPortfolioTool";
   description = `
-  Fetches the historical profit and loss of a whale.
+  Fetches the portfolio of a wallet.
 
   Inputs (JSON string):
   address: string - The address of the whale.
 
   Output (JSON string):
-  The content will contain the total profit and loss of the whale by specific time range and in total.
-  Also including their current trading positions.
+  The data will contain the portfolio of the wallet.
   `;
 
   // @ts-ignore
@@ -21,28 +20,27 @@ export class GetHistoricalPnlOfWhaleTool extends Tool {
     address: z.string(),
   });
 
-  constructor(protected readonly FC_API_KEY: string) {
+  constructor(protected readonly ZERION_API_KEY: string) {
     super();
   }
 
   async _call(_input: z.infer<typeof this.schema>): Promise<string> {
-    const cacheKey = `getHistoricalPnlOfWhale-${_input.address}`;
+    const cacheKey = `getWalletPortfolio-${_input.address}`;
     const cachedResult = this.cache.get<string>(cacheKey);
     if (cachedResult) {
       return cachedResult;
     }
 
-    const response = await fetch("https://api.firecrawl.dev/v1/scrape", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.FC_API_KEY}`,
-      },
-      body: JSON.stringify({
-        url: `https://www.coinglass.com/hyperliquid/${_input.address}`,
-        formats: ["markdown"],
-      }),
-    });
+    const response = await fetch(
+      `https://api.zerion.io/v1/wallets/${_input.address}/portfolio?filter[positions]=no_filter`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `BASIC ${this.ZERION_API_KEY}`,
+        },
+      }
+    );
 
     const res = await response.json();
     const data = res?.data;
@@ -57,8 +55,8 @@ if (import.meta.vitest) {
   describe("HyperWhalesTool", () => {
     it("should fetch latest long/short positions on multiple coins of whales", async () => {
       // TODO: add key before running this test
-      const tool = new GetHistoricalPnlOfWhaleTool(
-        "fc-23e0e777b26648c5865b826641d443fd"
+      const tool = new GetWalletPortfolioTool(
+        "emtfZGV2X2ZkZjA5ZGFjNTEzNzQ0ZmZhYWRkNjkzODgwNTg2MTI1Og=="
       );
       const result = await tool.invoke({
         address: "0x20c2d95a3dfdca9e9ad12794d5fa6fad99da44f5",

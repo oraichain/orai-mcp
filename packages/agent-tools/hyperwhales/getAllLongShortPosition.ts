@@ -76,9 +76,7 @@ if (import.meta.vitest) {
   describe.skip("HyperWhalesTool", () => {
     it("should fetch latest long/short positions on multiple coins of whales", async () => {
       // TODO: add key before running this test
-      const tool = new GetAllLongShortPositionTool(
-        "88e408fd2ec84a289cc9c060e5bb9738"
-      );
+      const tool = new GetAllLongShortPositionTool("");
       const result = await tool.invoke({ offset: 0, limit: 10 });
       console.log(result);
     });
