@@ -1,5 +1,8 @@
 import { Tool } from "langchain/tools";
 import { z } from "zod";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 export class CoinGeckoTopTokensTool extends Tool {
   name = "coingecko_top_tokens";
@@ -9,13 +12,16 @@ export class CoinGeckoTopTokensTool extends Tool {
   - Market cap rank
   - Symbol
   - Name
-  - Current price
-  - Market cap
-  - 24h volume
-  - 24h price change
-  - 7d price change
+  - Current price in USD
+  - Market capitalization
+  - 24h trading volume
+  - 24h price change percentage
+  - 7d price change percentage
 
-  Returns the data directly in the response.
+  No input parameter is needed. The tool will fetch data from CoinGecko API directly.
+  Returns data in JSON format with token information sorted by market cap.
+  
+  Note: Data is cached locally to avoid rate limiting issues with the CoinGecko API.
   `;
 
   // @ts-ignore
@@ -81,6 +87,12 @@ export class CoinGeckoTopTokensTool extends Tool {
         change_7d:
           token.price_change_percentage_7d_in_currency?.toFixed(2) || "N/A",
       }));
+
+      // save to file
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const filePath = path.join(__dirname, "top-tokens.json");
+      fs.writeFileSync(filePath, JSON.stringify(formattedTokens, null, 2));
 
       return JSON.stringify({
         status: "success",

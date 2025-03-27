@@ -1,5 +1,8 @@
 import { Tool } from "langchain/tools";
 import { z } from "zod";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 export class AnalyzeMarketTrendTool extends Tool {
   name = "analyze_market_trend";
@@ -27,19 +30,52 @@ export class AnalyzeMarketTrendTool extends Tool {
 
   // @ts-ignore
   schema = z.object({
-    pools: z.array(z.any()).optional(),
-    tokens: z.array(z.any()).optional(),
-    historicalData: z.record(z.string(), z.any()).optional(),
+    // pools: z.array(z.any()).optional(),
+    // tokens: z.array(z.any()).optional(),
+    // historicalData: z.record(z.string(), z.any()).optional(),
   });
 
   constructor() {
     super();
   }
 
-  protected async _call(input: z.infer<typeof this.schema>): Promise<string> {
-    return "Not implemented";
+  // read pools from file
+  private readPoolsFromFile(): any[] {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const filePath = path.join(__dirname, "raydium-pools.json");
+    const pools = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    return pools;
+  }
+
+  // read tokens from file
+  private readTokensFromFile(): any[] {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const filePath = path.join(__dirname, "../coingecko", "top-tokens.json");
+    const tokens = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    return tokens;
+  }
+
+  // read historical data from file
+  private readHistoricalDataFromFile(): any {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const filePath = path.join(
+      __dirname,
+      "../coingecko",
+      "historical-data.json"
+    );
+    const historicalData = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    return historicalData;
+  }
+
+  protected async _call(_input: z.infer<typeof this.schema>): Promise<string> {
     try {
-      const { pools, tokens, historicalData } = input;
+      // const { pools, tokens, historicalData } = input;
+      const pools = this.readPoolsFromFile();
+      const tokens = this.readTokensFromFile();
+      const historicalData = this.readHistoricalDataFromFile();
 
       // Validate input data
       if (!pools || !Array.isArray(pools) || pools.length === 0) {
@@ -85,8 +121,14 @@ export class AnalyzeMarketTrendTool extends Tool {
       // Process each pool
       for (const pool of pools) {
         try {
-          const tokenASymbol = pool.symbol_mintA?.toUpperCase();
-          const tokenBSymbol = pool.symbol_mintB?.toUpperCase();
+          let tokenASymbol = pool.symbol_mintA?.toUpperCase();
+          let tokenBSymbol = pool.symbol_mintB?.toUpperCase();
+          if (tokenASymbol === "WSOL") {
+            tokenASymbol = "SOL";
+          }
+          if (tokenBSymbol === "WSOL") {
+            tokenBSymbol = "SOL";
+          }
 
           // Skip if token symbols are not found in our token map
           if (!tokenMap.has(tokenASymbol) || !tokenMap.has(tokenBSymbol)) {
@@ -107,8 +149,8 @@ export class AnalyzeMarketTrendTool extends Tool {
             continue;
           }
 
-          const tokenAData = historicalData[tokenAId];
-          const tokenBData = historicalData[tokenBId];
+          const tokenAData = historicalData[tokenAId].data;
+          const tokenBData = historicalData[tokenBId].data;
 
           if (
             !tokenAData.prices ||
@@ -208,6 +250,12 @@ export class AnalyzeMarketTrendTool extends Tool {
         }
       }
 
+      // save to file
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const filePath = path.join(__dirname, "analyzed-pools.json");
+      fs.writeFileSync(filePath, JSON.stringify(analyzedPools, null, 2));
+
       // Return results
       if (analyzedPools.length > 0) {
         return JSON.stringify({
@@ -215,7 +263,7 @@ export class AnalyzeMarketTrendTool extends Tool {
           message: `Successfully analyzed ${analyzedPools.length} pools`,
           data: {
             count: analyzedPools.length,
-            analyzedPools: analyzedPools,
+            // analyzedPools: analyzedPools,
           },
         });
       } else {

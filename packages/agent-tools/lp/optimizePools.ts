@@ -1,5 +1,8 @@
 import { Tool } from "langchain/tools";
 import { z } from "zod";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // Default minimum values
 const MIN_TVL = 200000; // Minimum TVL in USD
@@ -161,30 +164,6 @@ const assessRiskLevel = (
   }
 };
 
-// Define interfaces
-interface Pool {
-  id?: string;
-  pool_name: string;
-  token_a: string;
-  token_b: string;
-  token_a_id: string;
-  token_b_id: string;
-  token_a_trend: string;
-  token_b_trend: string;
-  correlation: number;
-  tvl: number;
-  volume_24h: number;
-  apy_7d: number;
-}
-
-interface TokenHistoricalData {
-  prices: [number, number][]; // [timestamp, price]
-}
-
-interface HistoricalDataMap {
-  [tokenId: string]: TokenHistoricalData;
-}
-
 // Main optimizer tool
 export class OptimizePoolsTool extends Tool {
   name = "optimize_pools";
@@ -198,21 +177,15 @@ export class OptimizePoolsTool extends Tool {
   6. Sorting pools by efficiency (APY to loss ratio)
   
   Parameters:
-  - analyzedPools: Array of analyzed pool data objects
-  - historicalData: Object mapping token IDs to their historical price data
   - minTvl: Minimum TVL in USD for pool filtering (default: ${MIN_TVL})
   - minVolume24h: Minimum 24-hour volume in USD for pool filtering (default: ${MIN_VOLUME_24H})
-  - minApy: Minimum APY percentage for pool filtering (default: 5.0)`;
+  - minApy: Minimum APY percentage for pool filtering (default: 5.0)
+  
+  These are just suggestions for pools that might be suitable. Please consider additional factors before making a decision.`;
 
   // Fix for schema type issue
   // @ts-ignore
   schema = z.object({
-    analyzedPools: z
-      .array(z.any())
-      .describe("Array of analyzed pool data objects"),
-    historicalData: z
-      .record(z.any())
-      .describe("Object mapping token IDs to their historical price data"),
     minTvl: z.number().optional(),
     minVolume24h: z.number().optional(),
     minApy: z.number().optional(),
@@ -222,15 +195,37 @@ export class OptimizePoolsTool extends Tool {
     super();
   }
 
+  // read analyzed pools from file
+  private readAnalyzedPoolsFromFile(): any[] {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const filePath = path.join(__dirname, "analyzed-pools.json");
+    const analyzedPools = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    return analyzedPools;
+  }
+
+  // read historical data from file
+  private readHistoricalDataFromFile(): any {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const filePath = path.join(
+      __dirname,
+      "../coingecko",
+      "historical-data.json"
+    );
+    const historicalData = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    return historicalData;
+  }
   protected async _call(input: {
-    analyzedPools: Pool[];
-    historicalData: HistoricalDataMap;
     minTvl?: number;
     minVolume24h?: number;
     minApy?: number;
   }): Promise<string> {
-    return "Not implemented";
     try {
+      // read analyzed pools from file
+      const analyzedPools = this.readAnalyzedPoolsFromFile();
+      const historicalData = this.readHistoricalDataFromFile();
+
       // Use provided parameters or default values
       const minTvl = input.minTvl ?? MIN_TVL;
       const minVolume24h = input.minVolume24h ?? MIN_VOLUME_24H;
@@ -242,28 +237,27 @@ export class OptimizePoolsTool extends Tool {
 
       // Check if analyzed pools data is provided
       if (
-        !input.analyzedPools ||
-        !Array.isArray(input.analyzedPools) ||
-        input.analyzedPools.length === 0
+        !analyzedPools ||
+        !Array.isArray(analyzedPools) ||
+        analyzedPools.length === 0
       ) {
         return "Error: No analyzed pools data provided";
       }
 
       // Check if historical data is provided
       if (
-        !input.historicalData ||
-        typeof input.historicalData !== "object" ||
-        Object.keys(input.historicalData).length === 0
+        !historicalData ||
+        typeof historicalData !== "object" ||
+        Object.keys(historicalData).length === 0
       ) {
         return "Error: No historical data provided";
       }
 
-      const pools = input.analyzedPools;
-      const historicalData = input.historicalData;
+      const pools = analyzedPools;
 
       // Filter by TVL, 24h volume, and APY
       const filteredPools = pools.filter(
-        (pool: Pool) =>
+        (pool) =>
           pool.tvl >= minTvl &&
           pool.volume_24h >= minVolume24h &&
           pool.apy_7d >= minApy
@@ -281,7 +275,7 @@ export class OptimizePoolsTool extends Tool {
       const recommendedPools = [];
 
       // Process each filtered pool
-      for (const pool of filteredPools as Pool[]) {
+      for (const pool of filteredPools) {
         try {
           // Extract data
           const tokenASymbol = pool.token_a;
@@ -302,8 +296,8 @@ export class OptimizePoolsTool extends Tool {
             continue;
           }
 
-          const tokenAData = historicalData[tokenAId];
-          const tokenBData = historicalData[tokenBId];
+          const tokenAData = historicalData[tokenAId].data;
+          const tokenBData = historicalData[tokenBId].data;
 
           if (
             !tokenAData.prices ||
@@ -391,14 +385,15 @@ export class OptimizePoolsTool extends Tool {
         recommendedPools.sort((a, b) => b.efficiency - a.efficiency);
 
         // Create summary of top 5 pools
-        const topPools = recommendedPools.slice(0, 5);
+        // const topPools = recommendedPools.slice(0, 5);
+        const topPools = recommendedPools;
 
         // Build detailed response
         const summary = [];
 
         summary.push(`Optimized ${recommendedPools.length} liquidity pools`);
 
-        summary.push(`\nTOP 5 RECOMMENDED LIQUIDITY POOLS:`);
+        summary.push(`\nMY RECOMMENDED LIQUIDITY POOLS:`);
 
         topPools.forEach((pool, i) => {
           summary.push(`\n${i + 1}. ${pool.pool_name} Pool:`);

@@ -1,5 +1,8 @@
 import { Tool } from "langchain/tools";
 import { z } from "zod";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 export class LpFetchRaydiumPoolTool extends Tool {
   name = "lp_fetch_raydium_pool";
@@ -130,6 +133,13 @@ export class LpFetchRaydiumPoolTool extends Tool {
           await new Promise((resolve) => setTimeout(resolve, 100));
         }
       }
+
+      // save to file
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const filePath = path.join(__dirname, "raydium-pools.json");
+
+      fs.writeFileSync(filePath, JSON.stringify(allPools, null, 2));
 
       return JSON.stringify({
         status: "success",

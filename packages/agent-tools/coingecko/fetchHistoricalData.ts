@@ -23,14 +23,18 @@ export class CoinGeckoHistoricalDataTool extends Tool {
   description = `Fetch historical data for a list of tokens from CoinGecko.
 
   This tool fetches detailed historical information about cryptocurrencies including:
-  - Price history
+  - Price history (daily prices for the last 30 days)
   - Market cap history
   - Volume history
   
-  Input should be a comma-separated list of token IDs (e.g., "bitcoin,ethereum").
-  Data is cached for 1 hour to respect rate limits.
+  No input parameter is needed as the tool automatically fetches data for tokens found in the cached top-tokens.json file.
+  Data is cached for 1 hour to respect CoinGecko API rate limits.
 
-  Returns the historical data for each token.
+  The historical data collected by this tool is stored internally and used by other tools in the system:
+  - AnalyzeMarketTrend tool uses this data to calculate correlations and identify price trends
+  - OptimizePools tool uses this data to evaluate price ranges and estimate impermanent loss risks
+  
+  Returns a summary of the data fetching operation, including success status and any errors encountered.
   `;
 
   private cacheValidityPeriod: number; // in milliseconds
@@ -40,7 +44,7 @@ export class CoinGeckoHistoricalDataTool extends Tool {
   constructor(
     cacheValidityPeriod: number = 3600000, // 1 hour in milliseconds
     apiKey: string = "",
-    cacheFilePath: string = "coingecko-cache.json"
+    cacheFilePath: string = "historical-data.json"
   ) {
     super();
     const __filename = fileURLToPath(import.meta.url);
@@ -128,15 +132,26 @@ export class CoinGeckoHistoricalDataTool extends Tool {
     return await response.json();
   }
 
-  protected async _call(input: z.infer<typeof this.schema>): Promise<string> {
+  // read top tokens from file
+  private readTopTokensFromFile(): any[] {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const filePath = path.join(__dirname, "top-tokens.json");
+    const tokens = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    return tokens;
+  }
+  protected async _call(_input: z.infer<typeof this.schema>): Promise<string> {
     try {
-      const tokenIds = input.input
-        .split(",")
-        .map((id: string) => id.trim().toLowerCase());
+      // const tokenIds = input.input
+      //   .split(",")
+      //   .map((id: string) => id.trim().toLowerCase());
       const result: { [tokenId: string]: HistoricalData } = {};
       const errors: string[] = [];
 
-      for (const tokenId of tokenIds) {
+      const tokens = this.readTopTokensFromFile();
+
+      for (const token of tokens) {
+        const tokenId = token.id;
         try {
           const cachedData = this.getCachedData(tokenId);
           if (cachedData && this.isCacheValid(cachedData)) {
@@ -144,7 +159,7 @@ export class CoinGeckoHistoricalDataTool extends Tool {
           } else {
             // Add delay between requests to respect rate limits
             if (Object.keys(result).length > 0) {
-              await new Promise((resolve) => setTimeout(resolve, 2500)); // 2.5s delay
+              await new Promise((resolve) => setTimeout(resolve, 1500)); // 1.5s delay
             }
 
             const data = await this.fetchTokenData(tokenId);
@@ -170,7 +185,7 @@ export class CoinGeckoHistoricalDataTool extends Tool {
           errors.length > 0 ? ` with ${errors.length} errors` : ""
         }`,
         errors: errors.length > 0 ? errors : undefined,
-        data: result,
+        // data: result,
       });
     } catch (error: any) {
       return JSON.stringify({
