@@ -1,8 +1,5 @@
 import { Tool } from "langchain/tools";
 import { z } from "zod";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 
 interface HistoricalData {
   prices: [number, number][]; // [timestamp, price]
@@ -13,10 +10,6 @@ interface HistoricalData {
 interface CacheData {
   timestamp: number;
   data: HistoricalData;
-}
-
-interface TokenCache {
-  [tokenId: string]: CacheData;
 }
 
 export class CoinGeckoHistoricalDataTool extends Tool {
@@ -34,50 +27,21 @@ export class CoinGeckoHistoricalDataTool extends Tool {
   Returns the historical data for each token.
   `;
 
-  private cacheDir: string;
-  private cacheFile: string;
   private cacheValidityPeriod: number; // in milliseconds
+  private cache: Map<string, CacheData>;
 
   constructor(
-    cacheDir: string = "./cache",
     cacheValidityPeriod: number = 3600000 // 1 hour in milliseconds
   ) {
     super();
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-
-    this.cacheDir = path.join(__dirname, cacheDir);
-    this.cacheFile = path.join(this.cacheDir, "historical_data_cache.json");
     this.cacheValidityPeriod = cacheValidityPeriod;
-    this.initializeCache();
+    this.cache = new Map<string, CacheData>();
   }
 
   // @ts-ignore
   schema = z.object({
     input: z.string().min(1, "Token list cannot be empty"),
   });
-
-  private initializeCache(): void {
-    if (!fs.existsSync(this.cacheDir)) {
-      fs.mkdirSync(this.cacheDir, { recursive: true });
-    }
-    if (!fs.existsSync(this.cacheFile)) {
-      fs.writeFileSync(this.cacheFile, JSON.stringify({}));
-    }
-  }
-
-  private loadCache(): TokenCache {
-    try {
-      const cacheContent = fs.readFileSync(this.cacheFile, "utf-8");
-      return JSON.parse(cacheContent);
-    } catch (error) {
-      return {};
-    }
-  }
-
-  private saveCache(cache: TokenCache): void {
-    fs.writeFileSync(this.cacheFile, JSON.stringify(cache, null, 2));
-  }
 
   private isCacheValid(cacheData: CacheData): boolean {
     const now = Date.now();
@@ -115,34 +79,31 @@ export class CoinGeckoHistoricalDataTool extends Tool {
       const tokenIds = input.input
         .split(",")
         .map((id: string) => id.trim().toLowerCase());
-      const cache = this.loadCache();
       const result: { [tokenId: string]: HistoricalData } = {};
       const errors: string[] = [];
 
       for (const tokenId of tokenIds) {
         try {
-          if (cache[tokenId] && this.isCacheValid(cache[tokenId])) {
-            result[tokenId] = cache[tokenId].data;
+          const cachedData = this.cache.get(tokenId);
+          if (cachedData && this.isCacheValid(cachedData)) {
+            result[tokenId] = cachedData.data;
           } else {
             // Add delay between requests to respect rate limits
             if (Object.keys(result).length > 0) {
-              await new Promise((resolve) => setTimeout(resolve, 500)); // 5s delay
+              await new Promise((resolve) => setTimeout(resolve, 500)); // 0.5s delay
             }
 
             const data = await this.fetchTokenData(tokenId);
             result[tokenId] = data;
-            cache[tokenId] = {
+            this.cache.set(tokenId, {
               timestamp: Date.now(),
               data,
-            };
+            });
           }
         } catch (error: any) {
           errors.push(`Error fetching ${tokenId}: ${error.message}`);
         }
       }
-
-      // Save updated cache
-      this.saveCache(cache);
 
       return JSON.stringify({
         status: errors.length === 0 ? "success" : "partial_success",
@@ -167,7 +128,7 @@ if (import.meta.vitest) {
     .vitest;
 
   describe("CoinGeckoHistoricalDataTool", () => {
-    const tool = new CoinGeckoHistoricalDataTool("./test_cache");
+    const tool = new CoinGeckoHistoricalDataTool();
 
     // Sample mock response for market chart data
     const mockMarketChartResponse = {
@@ -273,12 +234,6 @@ if (import.meta.vitest) {
     };
 
     beforeEach(() => {
-      // Mock the filesystem operations to avoid actual file I/O during tests
-      vi.spyOn(fs, "existsSync").mockReturnValue(true);
-      vi.spyOn(fs, "mkdirSync").mockImplementation(() => undefined);
-      vi.spyOn(fs, "writeFileSync").mockImplementation(() => undefined);
-      vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify({}));
-
       // Mock fetch for market chart data
       global.fetch = vi.fn().mockImplementation((url) => {
         // For invalid token IDs
@@ -323,17 +278,13 @@ if (import.meta.vitest) {
     });
 
     it("should use cached data when available", async () => {
-      // Mock the cache check to return true
-      vi.spyOn(tool as any, "isCacheValid").mockReturnValue(true);
-
       // Mock the cache to contain ethereum data
-      const mockCache = {
-        ethereum: {
-          timestamp: Date.now(),
-          data: mockMarketChartResponse,
-        },
+      const mockCacheData: CacheData = {
+        timestamp: Date.now(),
+        data: mockMarketChartResponse as HistoricalData,
       };
-      vi.spyOn(tool as any, "loadCache").mockReturnValue(mockCache);
+      vi.spyOn(tool["cache"], "get").mockReturnValue(mockCacheData);
+      vi.spyOn(tool as any, "isCacheValid").mockReturnValue(true);
 
       // Second call should use cache
       const result = await tool.invoke("ethereum");
