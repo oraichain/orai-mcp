@@ -229,6 +229,7 @@ export class OptimizePoolsTool extends Tool {
     minVolume24h?: number;
     minApy?: number;
   }): Promise<string> {
+    return "Not implemented";
     try {
       // Use provided parameters or default values
       const minTvl = input.minTvl ?? MIN_TVL;

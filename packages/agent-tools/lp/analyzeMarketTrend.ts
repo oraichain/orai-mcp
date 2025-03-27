@@ -37,6 +37,7 @@ export class AnalyzeMarketTrendTool extends Tool {
   }
 
   protected async _call(input: z.infer<typeof this.schema>): Promise<string> {
+    return "Not implemented";
     try {
       const { pools, tokens, historicalData } = input;
 
@@ -499,16 +500,16 @@ export class AnalyzeMarketTrendTool extends Tool {
 }
 
 if (import.meta.vitest) {
-  const { describe, it, expect, vi, beforeEach } = import.meta.vitest;
+  const { describe, it, expect, beforeEach } = import.meta.vitest;
 
   describe("AnalyzeMarketTrendTool", () => {
     let tool: AnalyzeMarketTrendTool;
 
     beforeEach(() => {
       tool = new AnalyzeMarketTrendTool();
-      vi.spyOn(console, "log").mockImplementation(() => {});
-      vi.spyOn(console, "warn").mockImplementation(() => {});
-      vi.spyOn(console, "error").mockImplementation(() => {});
+      // vi.spyOn(console, "log").mockImplementation(() => {});
+      // vi.spyOn(console, "warn").mockImplementation(() => {});
+      // vi.spyOn(console, "error").mockImplementation(() => {});
     });
 
     it("should handle missing input data gracefully", async () => {
@@ -523,14 +524,21 @@ if (import.meta.vitest) {
       // Mock input data
       const mockPools = [
         {
-          id: "pool1",
           symbol_mintA: "BTC",
           symbol_mintB: "ETH",
-          tvl: 1000000,
-          volume24h: 500000,
-          aprDay: 10,
-          aprWeek: 8,
-          feeRate: 0.0025,
+          feeRate: 0.0001,
+          tvl: 3500000,
+          currentPrice: 208.27,
+          volume24h: 954022.68,
+          aprDay: 30693.1,
+          dayPriceMin: 208.24,
+          dayPriceMax: 208.29,
+          aprWeek: 3530.46,
+          weekPriceMin: 208.24,
+          weekPriceMax: 208.29,
+          aprMonth: 1412.18,
+          monthPriceMin: 208.24,
+          monthPriceMax: 208.29,
         },
       ];
 

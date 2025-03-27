@@ -31,7 +31,7 @@ import {
 } from "@oraichain/agent-tools";
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { oraichainRpcUrl, mnemonic } from "./config.js";
+import { oraichainRpcUrl, mnemonic, coingeckoApiKey } from "./config.js";
 
 /**
  * Helper to start the MCP server with stdio transport
@@ -90,7 +90,7 @@ async function main() {
     new OraichainTxHashInfoTool(agent),
     new LpFetchRaydiumPoolTool(),
     new CoinGeckoTopTokensTool(),
-    new CoinGeckoHistoricalDataTool(),
+    new CoinGeckoHistoricalDataTool(86400000, coingeckoApiKey),
     new OptimizePoolsTool(),
     new AnalyzeMarketTrendTool(),
   ];
