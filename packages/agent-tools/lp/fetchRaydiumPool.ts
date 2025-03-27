@@ -25,7 +25,7 @@ export class LpFetchRaydiumPoolTool extends Tool {
 
   Parameters (provide as JSON string):
   - poolType: "all" | "standard" | "concentrated" | "allFarm" | "standardFarm" | "concentratedFarm"
-  - poolSortField: "default" |"liquidity" | "volume24h" | "fee24h" | "apr24h" | "volume7d" | "fee7d" | "apr7d" | "volume30d" | "fee30d" | "apr30d"
+  - poolSortField: "liquidity"
   - sortType: "asc" | "desc"
   `;
 
@@ -41,21 +41,7 @@ export class LpFetchRaydiumPoolTool extends Tool {
         "concentratedFarm",
       ])
       .optional(),
-    poolSortField: z
-      .enum([
-        "default",
-        "liquidity",
-        "volume24h",
-        "fee24h",
-        "apr24h",
-        "volume7d",
-        "fee7d",
-        "apr7d",
-        "volume30d",
-        "fee30d",
-        "apr30d",
-      ])
-      .optional(),
+    poolSortField: z.enum(["liquidity"]).optional(),
     sortType: z.enum(["asc", "desc"]).optional(),
   });
 
