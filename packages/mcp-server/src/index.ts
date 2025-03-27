@@ -27,6 +27,7 @@ import {
   CoinGeckoTopTokensTool,
   CoinGeckoHistoricalDataTool,
   OptimizePoolsTool,
+  AnalyzeMarketTrendTool,
 } from "@oraichain/agent-tools";
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -91,6 +92,7 @@ async function main() {
     new CoinGeckoTopTokensTool(),
     new CoinGeckoHistoricalDataTool(),
     new OptimizePoolsTool(),
+    new AnalyzeMarketTrendTool(),
   ];
 
   if (mnemonic) {
