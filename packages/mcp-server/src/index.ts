@@ -26,6 +26,7 @@ import {
   LpFetchRaydiumPoolTool,
   CoinGeckoTopTokensTool,
   CoinGeckoHistoricalDataTool,
+  OptimizePoolsTool,
 } from "@oraichain/agent-tools";
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -89,6 +90,7 @@ async function main() {
     new LpFetchRaydiumPoolTool(),
     new CoinGeckoTopTokensTool(),
     new CoinGeckoHistoricalDataTool(),
+    new OptimizePoolsTool(),
   ];
 
   if (mnemonic) {

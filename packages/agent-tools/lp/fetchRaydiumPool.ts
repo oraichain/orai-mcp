@@ -114,6 +114,7 @@ export class LpFetchRaydiumPoolTool extends Tool {
           feeRate: pool.feeRate,
           tvl: pool.tvl,
           currentPrice: pool.price,
+          volume24h: pool.day.volume || 0,
           aprDay: pool.day?.apr || 0,
           dayPriceMin: pool.day?.priceMin || 0,
           dayPriceMax: pool.day?.priceMax || 0,
