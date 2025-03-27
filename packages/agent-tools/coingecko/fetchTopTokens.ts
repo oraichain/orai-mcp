@@ -101,10 +101,126 @@ export class CoinGeckoTopTokensTool extends Tool {
 }
 
 if (import.meta.vitest) {
-  const { describe, it, expect, vi } = import.meta.vitest;
+  const { describe, it, expect, vi, beforeEach, afterEach } = import.meta
+    .vitest;
 
   describe("CoinGeckoTopTokensTool", () => {
     const tool = new CoinGeckoTopTokensTool();
+
+    const mockResponseData = [
+      {
+        id: "bitcoin",
+        symbol: "btc",
+        name: "Bitcoin",
+        image:
+          "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400",
+        current_price: 87340,
+        market_cap: 1732978404621,
+        market_cap_rank: 1,
+        fully_diluted_valuation: 1732980326028,
+        total_volume: 22337331688,
+        high_24h: 88268,
+        low_24h: 85863,
+        price_change_24h: -906.6881909918739,
+        price_change_percentage_24h: -1.02745,
+        market_cap_change_24h: -11689290971.870605,
+        market_cap_change_percentage_24h: -0.67,
+        circulating_supply: 19842506,
+        total_supply: 19842528,
+        max_supply: 21000000,
+        ath: 108786,
+        ath_change_percentage: -19.711,
+        ath_date: "2025-01-20T09:11:54.494Z",
+        atl: 67.81,
+        atl_change_percentage: 128707.1178,
+        atl_date: "2013-07-06T00:00:00.000Z",
+        roi: null,
+        last_updated: "2025-03-27T07:32:06.213Z",
+      },
+      {
+        id: "ethereum",
+        symbol: "eth",
+        name: "Ethereum",
+        image:
+          "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
+        current_price: 2025.31,
+        market_cap: 244309535159,
+        market_cap_rank: 2,
+        fully_diluted_valuation: 244309535159,
+        total_volume: 13306304530,
+        high_24h: 2075.57,
+        low_24h: 1985.69,
+        price_change_24h: -46.678190532190456,
+        price_change_percentage_24h: -2.25282,
+        market_cap_change_24h: -5107092439.299561,
+        market_cap_change_percentage_24h: -2.04762,
+        circulating_supply: 120646923.0201429,
+        total_supply: 120646923.0201429,
+        max_supply: null,
+        ath: 4878.26,
+        ath_change_percentage: -58.46389,
+        ath_date: "2021-11-10T14:24:19.604Z",
+        atl: 0.432979,
+        atl_change_percentage: 467876.59434,
+        atl_date: "2015-10-20T00:00:00.000Z",
+        roi: {
+          times: 30.006654151084646,
+          currency: "btc",
+          percentage: 3000.6654151084645,
+        },
+        last_updated: "2025-03-27T07:32:12.404Z",
+      },
+    ];
+
+    // Create a large mock response by duplicating the sample data
+    const createMockPage = (page: number) => {
+      const result = [];
+      for (let i = 0; i < 50; i++) {
+        // 50 items * 2 sample tokens = 100 tokens per page
+        const index = (page - 1) * 100 + i * 2;
+        // Clone and modify objects to give them unique ranks
+        const btcClone = {
+          ...mockResponseData[0],
+          id: `bitcoin-${index}`,
+          market_cap_rank: index + 1,
+        };
+        const ethClone = {
+          ...mockResponseData[1],
+          id: `ethereum-${index + 1}`,
+          market_cap_rank: index + 2,
+        };
+        result.push(btcClone, ethClone);
+      }
+      return result;
+    };
+
+    beforeEach(() => {
+      // Setup mock for fetch
+      global.fetch = vi
+        .fn()
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(createMockPage(1)),
+          })
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(createMockPage(2)),
+          })
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(createMockPage(3)),
+          })
+        );
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
 
     it("should successfully fetch tokens", async () => {
       const result = await tool.invoke("");
@@ -128,7 +244,7 @@ if (import.meta.vitest) {
     });
 
     it("should handle API errors", async () => {
-      // Mock fetch to simulate an error
+      // Override the fetch mock for this test
       global.fetch = vi.fn().mockRejectedValueOnce(new Error("API Error"));
 
       const result = await tool.invoke("");
