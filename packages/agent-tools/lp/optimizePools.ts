@@ -249,7 +249,11 @@ export class OptimizePoolsTool extends Tool {
       }
 
       // Check if historical data is provided
-      if (!input.historicalData || typeof input.historicalData !== "object") {
+      if (
+        !input.historicalData ||
+        typeof input.historicalData !== "object" ||
+        Object.keys(input.historicalData).length === 0
+      ) {
         return "Error: No historical data provided";
       }
 
@@ -480,7 +484,7 @@ if (import.meta.vitest) {
     it("should handle missing historical data", async () => {
       const result = await tool.invoke({
         analyzedPools: [{ id: "test" }] as any,
-        historicalData: null as any,
+        historicalData: {},
       });
       expect(result).toContain("Error: No historical data provided");
     });
@@ -503,9 +507,15 @@ if (import.meta.vitest) {
         },
       ];
 
+      // Mock minimal historical data
+      const mockHistoricalData = {
+        usdc: { prices: [[1, 1]] },
+        solana: { prices: [[1, 1]] },
+      };
+
       const result = await tool.invoke({
         analyzedPools: mockPools,
-        historicalData: {},
+        historicalData: mockHistoricalData,
         minTvl: 50000,
         minVolume24h: 10000,
         minApy: 5,

@@ -29,34 +29,48 @@ export class CoinGeckoTopTokensTool extends Tool {
 
   protected async _call(_input: z.infer<typeof this.schema>): Promise<string> {
     try {
-      // Fetch data from CoinGecko
-      const response = await fetch(
-        "https://api.coingecko.com/api/v3/coins/markets?" +
-          new URLSearchParams({
-            vs_currency: "usd",
-            order: "market_cap_desc",
-            per_page: "300",
-            page: "1",
-            sparkline: "false",
-            price_change_percentage: "24h,7d",
-          }),
-        {
-          headers: {
-            Accept: "application/json",
-            "User-Agent":
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          },
-        }
-      );
+      // We need to fetch 3 pages to get top 300 tokens
+      const allTokens = [];
 
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+      // Fetch data from CoinGecko for pages 1, 2, and 3
+      for (let page = 1; page <= 3; page++) {
+        const response = await fetch(
+          "https://api.coingecko.com/api/v3/coins/markets?" +
+            new URLSearchParams({
+              vs_currency: "usd",
+              order: "market_cap_desc",
+              per_page: "100",
+              page: page.toString(),
+              sparkline: "false",
+              price_change_percentage: "24h,7d",
+            }),
+          {
+            headers: {
+              Accept: "application/json",
+              "User-Agent":
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `API request failed with status ${response.status} on page ${page}`
+          );
+        }
+
+        const tokens = await response.json();
+        allTokens.push(...tokens);
+
+        // Add a small delay to avoid rate limiting
+        if (page < 3) {
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
       }
 
-      const tokens = await response.json();
-
       // Format data
-      const formattedTokens = tokens.map((token: any) => ({
+      const formattedTokens = allTokens.map((token: any) => ({
+        id: token.id,
         rank: token.market_cap_rank,
         symbol: token.symbol.toUpperCase(),
         name: token.name,
