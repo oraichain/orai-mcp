@@ -263,7 +263,7 @@ export class AnalyzeMarketTrendTool extends Tool {
           message: `Successfully analyzed ${analyzedPools.length} pools`,
           data: {
             count: analyzedPools.length,
-            // analyzedPools: analyzedPools,
+            analyzedPools: analyzedPools,
           },
         });
       } else {

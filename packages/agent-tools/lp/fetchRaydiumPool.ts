@@ -66,7 +66,7 @@ export class LpFetchRaydiumPoolTool extends Tool {
       let allPools: any[] = [];
       let currentPage = 1;
       let hasNextPage = true;
-      const MAX_POOLS = 300;
+      const MAX_POOLS = 400;
 
       while (hasNextPage && allPools.length < MAX_POOLS) {
         const queryParams = new URLSearchParams({
