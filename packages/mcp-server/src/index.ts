@@ -16,6 +16,10 @@ import {
   RedelegateTool,
   UndelegateTool,
   ClaimCommissionTool,
+  GetAllLongShortPositionTool,
+  GetProfitableArbitrageTool,
+  GetHistoricalPnlOfWhaleTool,
+  GetOverallMarketTool,
 } from "@oraichain/agent-tools";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
@@ -71,6 +75,10 @@ async function main() {
     new OraichainBroadcastTxTool(agent),
     new OraichainBroadcastTxFromBytesTool(agent),
     new OraichainBroadcastSignDocTool(agent),
+    new GetAllLongShortPositionTool(process.env.CG_API_KEY!),
+    new GetProfitableArbitrageTool(process.env.CG_API_KEY!),
+    new GetHistoricalPnlOfWhaleTool(process.env.FC_API_KEY!),
+    new GetOverallMarketTool(process.env.FC_API_KEY!),
   ];
 
   startMcpServer(ORAICHAIN_ACTIONS as any, {

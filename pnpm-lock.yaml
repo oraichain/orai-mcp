@@ -110,11 +110,11 @@ importers:
         specifier: ^1.7.0
         version: 1.7.0
       '@oraichain/agent-kit':
-        specifier: ^0.0.2
-        version: 0.0.2(starknet@6.23.1)
+        specifier: workspace:*
+        version: link:../agent-kit
       '@oraichain/agent-tools':
-        specifier: ^0.0.3
-        version: 0.0.3(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2)))(@langchain/mistralai@0.2.0(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2))))(@types/node@22.13.10)(axios@0.21.4)(openai@4.87.4(ws@7.5.10)(zod@3.24.2))(starknet@6.23.1)(ws@7.5.10)(yaml@2.7.0)
+        specifier: workspace:*
+        version: link:../agent-tools
       axios:
         specifier: 0.21.4
         version: 0.21.4
@@ -750,9 +750,6 @@ packages:
 
   '@oraichain/agent-kit@0.0.2':
     resolution: {integrity: sha512-lmFLxFim3LFfv3HGXaeu1hanOqQ86a/80JXjAlr9ehTsPx+LhWY6rjnYOcTlDCcvULHjyjPbwn61zIb5CU/kTQ==}
-
-  '@oraichain/agent-tools@0.0.3':
-    resolution: {integrity: sha512-Z8xEzZOwcNgwnIA4scbX6N3cvwWxJZ75UfF8uPYmh2ZODdbsI3owL+nRjdaLUd8JrLIG21hkVC0GbSSRQ1lEhw==}
 
   '@oraichain/common@1.2.10':
     resolution: {integrity: sha512-fV3jYVVA/FSJ+CXA8xq4TWHKkz2DYNb1lujX74keUZWhTVs49l65uAzPuIA02NGS0tVhdlXMqS8ViJPRp0lnzQ==}
@@ -4422,61 +4419,6 @@ snapshots:
       - debug
       - starknet
       - utf-8-validate
-
-  '@oraichain/agent-tools@0.0.3(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2)))(@langchain/mistralai@0.2.0(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2))))(@types/node@22.13.10)(axios@0.21.4)(openai@4.87.4(ws@7.5.10)(zod@3.24.2))(starknet@6.23.1)(ws@7.5.10)(yaml@2.7.0)':
-    dependencies:
-      '@cosmjs/amino': 0.32.4
-      '@cosmjs/proto-signing': 0.32.4
-      '@cosmjs/stargate': 0.32.4
-      '@oraichain/agent-kit': 0.0.2(starknet@6.23.1)
-      langchain: 0.3.19(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2)))(@langchain/mistralai@0.2.0(@langchain/core@0.3.42(openai@4.87.4(ws@7.5.10)(zod@3.24.2))))(axios@0.21.4)(openai@4.87.4(ws@7.5.10)(zod@3.24.2))(ws@7.5.10)
-      vitest: 3.0.9(@types/node@22.13.10)(yaml@2.7.0)
-      zod: 3.24.2
-    transitivePeerDependencies:
-      - '@edge-runtime/vm'
-      - '@langchain/anthropic'
-      - '@langchain/aws'
-      - '@langchain/cerebras'
-      - '@langchain/cohere'
-      - '@langchain/core'
-      - '@langchain/deepseek'
-      - '@langchain/google-genai'
-      - '@langchain/google-vertexai'
-      - '@langchain/google-vertexai-web'
-      - '@langchain/groq'
-      - '@langchain/mistralai'
-      - '@langchain/ollama'
-      - '@langchain/xai'
-      - '@types/debug'
-      - '@types/node'
-      - '@vitest/browser'
-      - '@vitest/ui'
-      - axios
-      - bufferutil
-      - cheerio
-      - debug
-      - encoding
-      - handlebars
-      - happy-dom
-      - jiti
-      - jsdom
-      - less
-      - lightningcss
-      - msw
-      - openai
-      - peggy
-      - sass
-      - sass-embedded
-      - starknet
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - typeorm
-      - utf-8-validate
-      - ws
-      - yaml
 
   '@oraichain/common@1.2.10(starknet@6.23.1)':
     dependencies:

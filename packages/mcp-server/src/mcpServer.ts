@@ -20,6 +20,10 @@ export function createMcpServer(
 
   // Convert each action to an MCP tool
   for (const action of tools) {
+    console.log({
+      name: action.name,
+      description: action.description,
+    });
     const { result } = zodToMCPShape(action.schema);
     server.tool(action.name, action.description, result, async (params) => {
       try {
