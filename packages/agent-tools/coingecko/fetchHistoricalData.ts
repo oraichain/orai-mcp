@@ -140,18 +140,18 @@ export class CoinGeckoHistoricalDataTool extends Tool {
     const tokens = JSON.parse(fs.readFileSync(filePath, "utf8"));
     return tokens;
   }
-  protected async _call(_input: z.infer<typeof this.schema>): Promise<string> {
+  protected async _call(input: z.infer<typeof this.schema>): Promise<string> {
     try {
-      // const tokenIds = input.input
-      //   .split(",")
-      //   .map((id: string) => id.trim().toLowerCase());
+      const tokenIds = input.input
+        .split(",")
+        .map((id: string) => id.trim().toLowerCase());
       const result: { [tokenId: string]: HistoricalData } = {};
       const errors: string[] = [];
 
-      const tokens = this.readTopTokensFromFile();
+      // const tokens = this.readTopTokensFromFile();
 
-      for (const token of tokens) {
-        const tokenId = token.id;
+      for (const tokenId of tokenIds) {
+        // const tokenId = token.id;
         try {
           const cachedData = this.getCachedData(tokenId);
           if (cachedData && this.isCacheValid(cachedData)) {
@@ -185,7 +185,7 @@ export class CoinGeckoHistoricalDataTool extends Tool {
           errors.length > 0 ? ` with ${errors.length} errors` : ""
         }`,
         errors: errors.length > 0 ? errors : undefined,
-        // data: result,
+        data: result,
       });
     } catch (error: any) {
       return JSON.stringify({

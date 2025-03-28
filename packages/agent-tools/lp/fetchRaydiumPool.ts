@@ -66,7 +66,10 @@ export class LpFetchRaydiumPoolTool extends Tool {
       let allPools: any[] = [];
       let currentPage = 1;
       let hasNextPage = true;
-      const MAX_POOLS = 400;
+      const MAX_POOLS = 100;
+
+      // fetch all coins
+      const allCoins = await this.fetchAllCoins();
 
       while (hasNextPage && allPools.length < MAX_POOLS) {
         const queryParams = new URLSearchParams({
@@ -99,7 +102,17 @@ export class LpFetchRaydiumPoolTool extends Tool {
         // Filter pools to include only the requested fields
         const filteredPools = pools.map((pool: any) => ({
           symbol_mintA: pool.mintA.symbol,
+          symbol_mintA_id: allCoins.find(
+            (coin: any) =>
+              coin.solanaAddress.toLowerCase() ===
+              pool.mintA.address.toLowerCase()
+          )?.id,
           symbol_mintB: pool.mintB.symbol,
+          symbol_mintB_id: allCoins.find(
+            (coin: any) =>
+              coin.solanaAddress.toLowerCase() ===
+              pool.mintB.address.toLowerCase()
+          )?.id,
           feeRate: pool.feeRate,
           tvl: pool.tvl,
           currentPrice: pool.price,
@@ -155,6 +168,44 @@ export class LpFetchRaydiumPoolTool extends Tool {
         message: error.message,
         code: error.code || "UNKNOWN_ERROR",
       });
+    }
+  }
+
+  // Fetch all coins from CoinGecko API
+  async fetchAllCoins(): Promise<any[]> {
+    try {
+      // store to file and cached
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const filePath = path.join(__dirname, "solana-coins.json");
+
+      // check if file exists
+      if (fs.existsSync(filePath)) {
+        console.log("Fetching from cached file");
+        return JSON.parse(fs.readFileSync(filePath, "utf8"));
+      }
+
+      const response = await fetch(
+        "https://api.coingecko.com/api/v3/coins/list?include_platform=true"
+      );
+      const responseData = await response.json();
+
+      // only save id, symbol, name, solana address. if don't have solana address, skip
+      const filteredCoins = responseData
+        .filter((coin: any) => coin.platforms?.solana)
+        .map((coin: any) => ({
+          id: coin.id,
+          symbol: coin.symbol,
+          name: coin.name,
+          solanaAddress: coin.platforms?.solana,
+        }));
+      // store to file
+      fs.writeFileSync(filePath, JSON.stringify(filteredCoins, null, 2));
+
+      return filteredCoins;
+    } catch (error) {
+      console.error("Error fetching all coins:", error);
+      throw error;
     }
   }
 }
