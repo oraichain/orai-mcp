@@ -27,7 +27,8 @@ export class CoinGeckoHistoricalDataTool extends Tool {
   - Market cap history
   - Volume history
   
-  No input parameter is needed as the tool automatically fetches data for tokens found in the cached top-tokens.json file.
+  Input:
+  - tokenIds: Array of token IDs to fetch historical data for, separated by commas. Limit 30 tokens per request.
   Data is cached for 1 hour to respect CoinGecko API rate limits.
 
   The historical data collected by this tool is stored internally and used by other tools in the system:
@@ -132,14 +133,14 @@ export class CoinGeckoHistoricalDataTool extends Tool {
     return await response.json();
   }
 
-  // read top tokens from file
-  private readTopTokensFromFile(): any[] {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const filePath = path.join(__dirname, "top-tokens.json");
-    const tokens = JSON.parse(fs.readFileSync(filePath, "utf8"));
-    return tokens;
-  }
+  // // read top tokens from file
+  // private readTopTokensFromFile(): any[] {
+  //   const __filename = fileURLToPath(import.meta.url);
+  //   const __dirname = path.dirname(__filename);
+  //   const filePath = path.join(__dirname, "top-tokens.json");
+  //   const tokens = JSON.parse(fs.readFileSync(filePath, "utf8"));
+  //   return tokens;
+  // }
   protected async _call(input: z.infer<typeof this.schema>): Promise<string> {
     try {
       const tokenIds = input.input

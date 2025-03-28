@@ -25,6 +25,7 @@ export class LpFetchRaydiumPoolTool extends Tool {
   - Farm status (upcoming, ongoing, finished counts)
   - Market information for pools with OrderBook
   - LP token details and burn percentages
+  - symbol_mintA_id and symbol_mintB_id are the coin ids from CoinGecko.
 
   Parameters (provide as JSON string):
   - poolType: "all" | "standard" | "concentrated" | "allFarm" | "standardFarm" | "concentratedFarm"
@@ -101,6 +102,7 @@ export class LpFetchRaydiumPoolTool extends Tool {
 
         // Filter pools to include only the requested fields
         const filteredPools = pools.map((pool: any) => ({
+          id: pool.id,
           symbol_mintA: pool.mintA.symbol,
           symbol_mintA_id: allCoins.find(
             (coin: any) =>
