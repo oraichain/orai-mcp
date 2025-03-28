@@ -28,7 +28,8 @@ export class CoinGeckoHistoricalDataTool extends Tool {
   - Volume history
   
   Input:
-  - tokenIds: Array of token IDs to fetch historical data for, separated by commas. Limit 30 tokens per request.
+  - tokenIds: Array of token IDs to fetch historical data for, separated by commas. Limit 30 tokens per request. 
+  So to fetch data for 300 tokens, you need to call the tool 10 times.
   Data is cached for 1 hour to respect CoinGecko API rate limits.
 
   The historical data collected by this tool is stored internally and used by other tools in the system:

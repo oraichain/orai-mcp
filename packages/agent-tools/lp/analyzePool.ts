@@ -3,38 +3,60 @@ import { z } from "zod";
 
 export class AnalyzePoolTool extends Tool {
   name = "analyze_poold";
-  description = `Analyze pool, calculate correlations, and analyze pools data.
+  description = `Analyze liquidity pools for cryptocurrency trading pairs.
 
-  This tool:
-  1. Processes pool data and historical data provided in the input
-  2. Calculates correlations between token pairs
-  3. Calculates risk metrics and optimal ranges
-  4. Returns analyzed data
+  This tool provides comprehensive analysis of liquidity pools by:
+  1. Calculating price correlation between token pairs
+  2. Estimating potential impermanent loss during market fluctuations
+  3. Calculating break-even timeframes based on yield vs. potential losses
+  4. Suggesting optimal price ranges for concentrated liquidity positions
 
-  The analysis includes:
-  - Token pair correlations
-  - Price trends (uptrend, downtrend, neutral)
-  - Risk assessments
-  - Impermanent loss estimations
-  - Break-even duration calculations
-  
+  Key metrics in the analysis:
+  - Correlation: Measures how closely the prices of the two tokens move together (-1 to 1)
+    * Higher correlation (close to 1): Lower impermanent loss risk
+    * Lower correlation (close to 0 or negative): Higher impermanent loss risk
+  - Drawdown Loss: Estimates potential impermanent loss during price downturns
+    * Based on recent price lows for both tokens in the pair
+    * Expressed as a percentage of initial investment
+  - Break-even Days: Number of days needed for yield to offset potential impermanent loss
+    * Calculated using APR and estimated drawdown loss
+    * Helps determine optimal holding period for the LP position
+  - Price Range: Suggested optimal price range for concentrated liquidity
+    * Based on historical price movements of the token pair
+    * Formatted as percentage range from current price ratio
+
   Parameters:
-  - pools: Array of pool data with token pairs, TVL, APR, etc. See example below. {
-    "symbol_mintA": "BTC",
-    "symbol_mintA_id": "bitcoin",
-    "symbol_mintB": "ETH",
-    "symbol_mintB_id": "ethereum"
-  }
-  - historicalData:Object mapping token IDs to their historical price data. The prices data is an array of objects with date and price properties. Example:
-  {
-    "bitcoin": {
-      "prices": [
-        [1623456789000, 30000],
-        [1623543189000, 31000],    
-      ]
-    }
-  }
-  The date is a timestamp in milliseconds.
+  - pools: Array of pool data objects, each containing:
+    * symbol_mintA: Symbol of first token (e.g., "BTC")
+    * symbol_mintA_id: CoinGecko ID of first token (e.g., "bitcoin")
+    * symbol_mintB: Symbol of second token (e.g., "ETH")  
+    * symbol_mintB_id: CoinGecko ID of second token (e.g., "ethereum")
+    * aprDay: Daily APR percentage (optional)
+  - historicalData: Object mapping token IDs to their historical price data:
+    * Key: token ID (e.g., "bitcoin")
+    * Value: Object with "prices" array of [timestamp, price] pairs
+    * Example:
+      {
+        "bitcoin": {
+          "prices": [
+            [1623456789000, 30000],
+            [1623543189000, 31000]
+          ]
+        }
+      }
+    * Timestamps in milliseconds
+
+  Returns:
+  - status: "success" or "error"
+  - message: Description of the result
+  - data (on success):
+    * count: Number of pools analyzed
+    * analyzedPools: Array of analyzed pool objects, each containing:
+      - pool_name: Name of the pool (e.g., "BTC-ETH")
+      - correlation: Correlation coefficient between token prices
+      - drawdown_loss: Estimated impermanent loss percentage
+      - break_even_days: Days needed for yield to offset losses
+      - price_range: Suggested optimal price range
   `;
 
   // @ts-ignore

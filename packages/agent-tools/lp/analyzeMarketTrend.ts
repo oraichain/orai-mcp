@@ -3,36 +3,46 @@ import { z } from "zod";
 
 export class AnalyzeMarketTrendTool extends Tool {
   name = "analyze_market_trend";
-  description = `Analyze market trends, calculate correlations, and analyze pools data.
+  description = `Analyze market trends for cryptocurrency tokens.
+  This tool analyzes the price trends of given tokens using Exponential Moving Average (EMA).
 
   This tool:
   1. Processes token data provided in the input
-  2. Analyzes price trends using EMA
+  2. Calculates a 21-day EMA for each token's price data
+  3. Determines price trends (uptrend, downtrend, or neutral) based on price position relative to EMA and EMA direction
 
-  The analysis includes:
-  - Price trends (uptrend, downtrend, neutral)
+  Input Parameters:
+  - tokens: Array of token data objects, each containing:
+    * id: The token's unique identifier (e.g., "bitcoin")
+    * symbol: The token's symbol (e.g., "BTC")
+  - historicalData: Object mapping token IDs to their historical price data:
+    * The key is the token ID (e.g., "bitcoin")
+    * The value contains a "prices" array of [timestamp, price] pairs
+    * Example:
+      {
+        "bitcoin": {
+          "prices": [
+            [1623456789000, 30000],
+            [1623543189000, 31000]
+          ]
+        }
+      }
+    * Timestamps are in milliseconds
 
-  
-  Parameters:
-  - tokens: Array of token data with symbol, id.
-  - historicalData: Object mapping token IDs to their historical price data. The prices data is an array of objects with date and price properties. Example:
-  {
-    "bitcoin": {
-      "prices": [
-        [1623456789000, 30000],
-        [1623543189000, 31000],    
-      ]
-    }
-  }
-  The date is a timestamp in milliseconds.
-
-  Returns:
+  Output:
   - status: "success" or "error"
-  - message: "Successfully analyzed <count> tokens" or error message
-  - data: {
-    count: <number of tokens analyzed>,
-    analyzedTokens: <array of analyzed tokens>
-  }
+  - message: Description of the result or error
+  - data (on success):
+    * count: Number of tokens successfully analyzed
+    * analyzedTokens: Array of analyzed tokens, each containing:
+      - id: Token ID
+      - symbol: Token symbol
+      - trend: "uptrend", "downtrend", or "neutral"
+
+  The trend is determined by:
+  - "uptrend": Price is above EMA and EMA is rising
+  - "downtrend": Price is below EMA and EMA is falling
+  - "neutral": Any other condition
   `;
 
   // @ts-ignore
@@ -199,7 +209,7 @@ if (import.meta.vitest) {
       const parsedResult = JSON.parse(result);
 
       expect(parsedResult.status).toBe("error");
-      expect(parsedResult.message).toContain("No pools data provided");
+      expect(parsedResult.message).toContain("No tokens data provided");
     });
 
     it("should analyze pools correctly from input data", async () => {
