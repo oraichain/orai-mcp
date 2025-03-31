@@ -2,7 +2,7 @@ import { Tool } from "langchain/tools";
 import { z } from "zod";
 
 export class GetProfitableArbitrageTool extends Tool {
-  name = "GetProfitableArbitrageTool";
+  name = "get_profitable_arbitrage";
   description = `A tool for profitable arbitrage opportunities between centralized-exchanges
 
   Inputs: (input is a JSON string):

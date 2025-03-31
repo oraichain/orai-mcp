@@ -4,7 +4,7 @@ import NodeCache from "node-cache";
 
 export class GetAllLongShortPositionTool extends Tool {
   cache = new NodeCache({ stdTTL: 30 });
-  name = "GetAllLongShortPositionsTool";
+  name = "get_all_long_short_positions";
   description = `
   Fetches the all latest long/short positions of whales across multiple coins. 
   Each call can retrieve up to 50 positions.

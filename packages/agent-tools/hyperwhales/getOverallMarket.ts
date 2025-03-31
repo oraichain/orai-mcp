@@ -4,7 +4,7 @@ import NodeCache from "node-cache";
 
 export class GetOverallMarketTool extends Tool {
   cache = new NodeCache({ stdTTL: 30 });
-  name = "GetOverallMarketTool";
+  name = "get_overall_market";
   description = `
   Fetches the overall market tool which helps to detect data on positions of the market in overall and latest whale activity.
 
@@ -54,7 +54,7 @@ export class GetOverallMarketTool extends Tool {
 if (import.meta.vitest) {
   const { describe, it } = import.meta.vitest;
 
-  describe("HyperWhalesTool", () => {
+  describe.skip("HyperWhalesTool", () => {
     it("should fetch latest long/short positions on multiple coins of whales", async () => {
       // TODO: add key before running this test
       const tool = new GetOverallMarketTool("");

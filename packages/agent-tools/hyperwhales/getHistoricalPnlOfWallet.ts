@@ -4,7 +4,7 @@ import NodeCache from "node-cache";
 
 export class GetHistoricalPnlOfWalletTool extends Tool {
   cache = new NodeCache({ stdTTL: 30 });
-  name = "GetHistoricalPnlOfWalletTool";
+  name = "get_historical_pnl_of_wallet";
   description = `
   Fetches the historical profit and loss of each wallet. This can be used to fetched pnl of whales or normal user.
 

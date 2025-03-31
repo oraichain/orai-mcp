@@ -4,7 +4,7 @@ import NodeCache from "node-cache";
 
 export class GetWalletPortfolioTool extends Tool {
   cache = new NodeCache({ stdTTL: 30 });
-  name = "GetWalletPortfolioTool";
+  name = "get_wallet_portfolio";
   description = `
   Fetches the portfolio of a wallet.
 
