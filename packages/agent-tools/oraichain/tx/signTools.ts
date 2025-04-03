@@ -1,8 +1,8 @@
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 import { z } from "zod";
 import { OraichainAgentKitWithSigner } from "@oraichain/agent-kit";
 
-export class OraichainSignTool extends Tool {
+export class OraichainSignTool extends StructuredTool {
   name = "oraichain_sign_direct";
   description = `Sign a transaction directly.
 
@@ -11,7 +11,6 @@ export class OraichainSignTool extends Tool {
   accountIndex: number - The account index
   `;
 
-  // @ts-ignore
   schema = z.object({
     signDocBase64: z.string().describe("The sign doc base64"),
     accountIndex: z.number().optional().describe("The account index"),

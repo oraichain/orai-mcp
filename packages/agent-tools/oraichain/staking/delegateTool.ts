@@ -1,4 +1,4 @@
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 import { z } from "zod";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
 import { Coin } from "@cosmjs/stargate";
@@ -23,7 +23,7 @@ import { makeSignBytes } from "@cosmjs/proto-signing";
  * const result = await delegateTool.invoke(input);
  * ```
  */
-export class DelegateTool extends Tool {
+export class DelegateTool extends StructuredTool {
   name = "delegate";
   description = `Delegate tokens to a validator on Oraichain.
 
@@ -35,7 +35,6 @@ export class DelegateTool extends Tool {
   publicKey: string - The delegator's public key for signing.
   `;
 
-  // @ts-ignore
   schema = z.object({
     delegatorAddress: z.string().describe("The address of the delegator"),
     validatorAddress: z

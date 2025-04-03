@@ -1,10 +1,10 @@
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 import { z } from "zod";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
 import { Coin } from "@cosmjs/stargate";
 import { makeSignBytes } from "@cosmjs/proto-signing";
 
-export class UndelegateTool extends Tool {
+export class UndelegateTool extends StructuredTool {
   name = "undelegate";
   description = `Undelegate tokens from a validator on Oraichain.
 
@@ -15,7 +15,6 @@ export class UndelegateTool extends Tool {
   publicKey: string - The delegator's public key for signing
   `;
 
-  // @ts-ignore
   schema = z.object({
     delegatorAddress: z.string().describe("The address of the delegator"),
     validatorAddress: z

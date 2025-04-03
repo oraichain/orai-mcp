@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 import { createMcpServer } from "../src/mcpServer";
 import {
   OraichainBalanceTool,
@@ -32,11 +32,11 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
  * });
  */
 export async function startMcpServer(
-  tools: Tool[],
+  tools: StructuredTool[],
   options: {
     name: string;
     version: string;
-  },
+  }
 ) {
   try {
     const server = createMcpServer(tools, options);

@@ -1,8 +1,8 @@
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
 import { z } from "zod";
 
-export class OraichainBroadcastTxTool extends Tool {
+export class OraichainBroadcastTxTool extends StructuredTool {
   name = "oraichain_broadcast_tx";
   description = `Broadcast a signed transaction to the network.
 
@@ -10,7 +10,6 @@ export class OraichainBroadcastTxTool extends Tool {
   signedTx: string - The signed transaction in base64 format
   `;
 
-  // @ts-ignore
   schema = z.object({
     signedTx: z.string().describe("The signed transaction in base64 format"),
   });
@@ -38,7 +37,7 @@ export class OraichainBroadcastTxTool extends Tool {
   }
 }
 
-export class OraichainBroadcastTxFromBytesTool extends Tool {
+export class OraichainBroadcastTxFromBytesTool extends StructuredTool {
   name = "oraichain_broadcast_tx_from_bytes";
   description = `Broadcast a signed transaction to the network using signed body bytes, auth bytes and signature.
 
@@ -48,7 +47,6 @@ export class OraichainBroadcastTxFromBytesTool extends Tool {
   signatures: string[] - The signatures for the transaction in base64 format
   `;
 
-  // @ts-ignore
   schema = z.object({
     signedBodyBytes: z
       .string()
@@ -89,7 +87,7 @@ export class OraichainBroadcastTxFromBytesTool extends Tool {
   }
 }
 
-export class OraichainBroadcastSignDocTool extends Tool {
+export class OraichainBroadcastSignDocTool extends StructuredTool {
   name = "oraichain_broadcast_sign_doc";
   description = `Broadcast a sign doc base64 to the network.
 
@@ -98,7 +96,6 @@ export class OraichainBroadcastSignDocTool extends Tool {
   signature: string - The signature
   `;
 
-  // @ts-ignore
   schema = z.object({
     signDocBase64: z.string().describe("The sign doc base64"),
     signature: z.string().describe("The signature"),
@@ -130,7 +127,7 @@ export class OraichainBroadcastSignDocTool extends Tool {
   }
 }
 
-export class OraichainTxHashInfoTool extends Tool {
+export class OraichainTxHashInfoTool extends StructuredTool {
   name = "oraichain_tx_hash_info";
   description = `Get the info of a transaction hash. You can use this tool to get the info of a transaction hash after broadcasting a transaction. It can be used to check the status of a transaction and get the transaction details. It is a proof that the transaction is successfully executed.
 
@@ -140,7 +137,6 @@ export class OraichainTxHashInfoTool extends Tool {
   txHash: string - The transaction hash in hex format.
   `;
 
-  // @ts-ignore
   schema = z.object({
     txHash: z
       .string()

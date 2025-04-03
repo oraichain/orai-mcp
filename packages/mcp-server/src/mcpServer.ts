@@ -1,16 +1,16 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { zodToMCPShape } from "./utils.js";
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 
 /**
  * Creates an MCP server from a set of actions
  */
 export function createMcpServer(
-  tools: Tool[],
+  tools: StructuredTool[],
   options: {
     name: string;
     version: string;
-  },
+  }
 ) {
   // Create MCP server instance
   const server = new McpServer({

@@ -1,8 +1,8 @@
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 import { z } from "zod";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
 
-export class GetDelegationsTool extends Tool {
+export class GetDelegationsTool extends StructuredTool {
   name = "getDelegations";
   description = `Get all delegations for a delegator on Oraichain.
 
@@ -10,7 +10,6 @@ export class GetDelegationsTool extends Tool {
   delegatorAddress: string - The address of the delegator
   `;
 
-  // @ts-ignore
   schema = z.object({
     delegatorAddress: z.string().describe("The address of the delegator"),
   });

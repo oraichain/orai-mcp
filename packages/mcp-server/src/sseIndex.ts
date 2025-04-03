@@ -172,7 +172,7 @@ async function main() {
         new OraichainBroadcastSignDocTool(agent),
       ];
 
-      server = createMcpServer(ORAICHAIN_ACTIONS as any, {
+      server = createMcpServer(ORAICHAIN_ACTIONS, {
         name: "oraichain-mcp-server",
         version: "0.0.5",
       });

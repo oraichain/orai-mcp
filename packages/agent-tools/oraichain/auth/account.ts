@@ -1,8 +1,8 @@
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 import { OraichainAgentKitWithSigner } from "@oraichain/agent-kit";
 import { z } from "zod";
 
-export class OraichainAccountTool extends Tool {
+export class OraichainAccountTool extends StructuredTool {
   name = "agent_oraichain_account";
   description = `Get the account information of your Oraichain signer wallet. This wallet can be used to sign and broadcast transactions. 
 
@@ -14,7 +14,6 @@ export class OraichainAccountTool extends Tool {
   accountIndex: number, eg: 0,
   `;
 
-  // @ts-ignore
   schema = z.object({
     accountIndex: z.number().optional().describe("The index of the wallet"),
   });

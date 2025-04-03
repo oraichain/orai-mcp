@@ -1,9 +1,9 @@
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 import { z } from "zod";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
 import { makeSignBytes } from "@cosmjs/proto-signing";
 
-export class ClaimCommissionTool extends Tool {
+export class ClaimCommissionTool extends StructuredTool {
   name = "claimCommission";
   description = `Claim validator commission rewards on Oraichain.
 
@@ -12,7 +12,6 @@ export class ClaimCommissionTool extends Tool {
   publicKey: string - The validator's public key for signing
   `;
 
-  // @ts-ignore
   schema = z.object({
     validatorAddress: z.string().describe("The address of the validator"),
     publicKey: z.string().describe("The validator's public key for signing"),

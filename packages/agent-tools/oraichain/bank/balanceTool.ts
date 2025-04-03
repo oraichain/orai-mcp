@@ -1,8 +1,8 @@
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
 import { z } from "zod";
 
-export class OraichainBalanceTool extends Tool {
+export class OraichainBalanceTool extends StructuredTool {
   name = "oraichain_balance";
   description = `Get the balance of a Oraichain wallet.
 
@@ -13,7 +13,6 @@ export class OraichainBalanceTool extends Tool {
   address: string, eg: "orai1...",
   `;
 
-  // @ts-ignore
   schema = z.object({
     denom: z.string().describe("The denomination of the coin"),
     address: z.string().describe("The address of the wallet"),
@@ -27,7 +26,7 @@ export class OraichainBalanceTool extends Tool {
     try {
       const coin = await this.oraichainKit.getBalance(
         input.address,
-        input.denom,
+        input.denom
       );
       const amountAfterDecimals = +coin.amount / 10 ** 6;
       const coinAfterDecimals = {
@@ -91,7 +90,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema",
+          "Received tool input did not match expected schema"
         );
       }
     });

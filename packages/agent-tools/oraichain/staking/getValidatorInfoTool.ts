@@ -1,8 +1,8 @@
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 import { z } from "zod";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
 
-export class GetValidatorInfoTool extends Tool {
+export class GetValidatorInfoTool extends StructuredTool {
   name = "get_validator_info";
   description = `Get validator information including commission on Oraichain given a validator address.
 
@@ -10,7 +10,6 @@ export class GetValidatorInfoTool extends Tool {
   validatorAddress: string - The address of the validator
   `;
 
-  // @ts-ignore
   schema = z.object({
     validatorAddress: z.string().describe("The address of the validator"),
   });
@@ -55,7 +54,7 @@ export class GetValidatorInfoTool extends Tool {
   }
 }
 
-export class GetAllValidatorsInfoTool extends Tool {
+export class GetAllValidatorsInfoTool extends StructuredTool {
   name = "get_all_validators_info";
   description = `Get all validators information including commission on Oraichain. You don't need to provide any input. This tool is useful when you want to get all validators information.
 
@@ -64,7 +63,6 @@ export class GetAllValidatorsInfoTool extends Tool {
   Inputs (input is empty)
   `;
 
-  // @ts-ignore
   schema = z.object({});
 
   constructor(private readonly oraichainKit: OraichainAgentKit) {

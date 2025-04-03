@@ -1,8 +1,8 @@
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
 import { z } from "zod";
 
-export class OraichainTokenTransferTool extends Tool {
+export class OraichainTokenTransferTool extends StructuredTool {
   name = "oraichain_token_transfer";
   description = `Generate a transfer message for a token with an amount to a recipient address.
 
@@ -16,7 +16,6 @@ export class OraichainTokenTransferTool extends Tool {
   }
   `;
 
-  // @ts-ignore
   schema = z.object({
     senderAddress: z.string().describe("The sender address"),
     recipient: z.string().describe("The recipient address"),

@@ -1,6 +1,6 @@
 /// <reference types="vitest/importMeta" />
 
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 import { z } from "zod";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
 import { makeSignBytes } from "@cosmjs/proto-signing";
@@ -24,7 +24,7 @@ import { makeSignBytes } from "@cosmjs/proto-signing";
  * const result = await voteTool.invoke(input);
  * ```
  */
-export class VoteTool extends Tool {
+export class VoteTool extends StructuredTool {
   name = "vote";
   description = `Vote on a governance proposal on Oraichain.
 
@@ -35,7 +35,6 @@ export class VoteTool extends Tool {
   publicKey: string - The voter's public key for signing
   `;
 
-  // @ts-ignore
   schema = z.object({
     voterAddress: z.string().describe("The address of the voter"),
     proposalId: z.string().describe("The ID of the proposal to vote on"),
@@ -63,7 +62,7 @@ export class VoteTool extends Tool {
           },
         ],
         "auto",
-        "",
+        ""
       );
 
       return JSON.stringify({
@@ -129,7 +128,7 @@ if (import.meta.vitest) {
           },
         ],
         "auto",
-        "",
+        ""
       );
     });
 
@@ -143,7 +142,7 @@ if (import.meta.vitest) {
         await tool.invoke(input);
       } catch (error) {
         expect(error.message).toContain(
-          "Received tool input did not match expected schema",
+          "Received tool input did not match expected schema"
         );
       }
     });

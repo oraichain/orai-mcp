@@ -5,7 +5,7 @@ import {
   OraichainAgentKit,
   OraichainAgentKitWithSigner,
 } from "@oraichain/agent-kit";
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 import { createMcpServer } from "./mcpServer.js";
 import {
   OraichainBalanceTool,
@@ -47,7 +47,7 @@ import { oraichainRpcUrl, mnemonic } from "./config.js";
  * });
  */
 export async function startMcpServer(
-  tools: Tool[],
+  tools: StructuredTool[],
   options: {
     name: string;
     version: string;
@@ -95,7 +95,7 @@ async function main() {
     ORAICHAIN_ACTIONS.push(...(SIGNER_ACTIONS as any));
   }
 
-  startMcpServer(ORAICHAIN_ACTIONS as any, {
+  startMcpServer(ORAICHAIN_ACTIONS, {
     name: "oraichain-agent-stdio",
     version: "0.0.1",
   });

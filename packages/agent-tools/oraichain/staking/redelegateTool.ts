@@ -1,10 +1,10 @@
-import { Tool } from "langchain/tools";
+import { StructuredTool } from "langchain/tools";
 import { z } from "zod";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
 import { Coin } from "@cosmjs/stargate";
 import { makeSignBytes } from "@cosmjs/proto-signing";
 
-export class RedelegateTool extends Tool {
+export class RedelegateTool extends StructuredTool {
   name = "redelegate";
   description = `Redelegate tokens from one validator to another on Oraichain.
 
@@ -16,7 +16,6 @@ export class RedelegateTool extends Tool {
   publicKey: string - The delegator's public key for signing
   `;
 
-  // @ts-ignore
   schema = z.object({
     delegatorAddress: z.string().describe("The address of the delegator"),
     validatorSrcAddress: z
