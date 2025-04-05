@@ -61,13 +61,15 @@ if (import.meta.vitest) {
 
     it("should successfully get balance", async () => {
       const input = {
-        address: "orai1...",
         accountIndex: 0,
       };
 
       const mockResponse = {
         address: "orai1...",
         accountIndex: 0,
+        pubkey: "testpubkey",
+        sequence: 1,
+        accountNumber: 1,
       };
 
       mockGetSignerInfo.mockResolvedValueOnce(mockResponse);
@@ -76,7 +78,7 @@ if (import.meta.vitest) {
       const parsedResult = JSON.parse(result);
 
       expect(parsedResult.status).toBe("success");
-      expect(parsedResult.data.accountInfo).toEqual(mockResponse);
+      expect(parsedResult.data).toEqual(mockResponse);
       expect(mockGetSignerInfo).toHaveBeenCalledWith(input.accountIndex);
     });
 
@@ -96,8 +98,7 @@ if (import.meta.vitest) {
 
     it("should handle query errors", async () => {
       const input = {
-        address: "orai1...",
-        denom: "orai",
+        accountIndex: 0,
       };
 
       const errorMessage = "Failed to get account information";

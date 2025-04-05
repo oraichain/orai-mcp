@@ -113,6 +113,7 @@ if (import.meta.vitest) {
         delegatorAddress: "orai1g4h64ksa6jqgae22h8pxfcaksg93ldj48jy2r7",
         validatorAddress: "oraivaloper1s395lfdpv9l5y38nwr07xs0jq5jhhqs7mjt68c",
         amount: "1000000.0", // Added decimal for clarity
+        denom: "orai", // Added required denom field
         publicKey: "AytM0l1GZg4Z5YCLoWjmqD+5qKzM5tN8EzrKtlGmH7g=", // Sample base64 pubkey
       };
 
@@ -136,7 +137,7 @@ if (import.meta.vitest) {
               delegatorAddress: input.delegatorAddress,
               validatorAddress: input.validatorAddress,
               amount: {
-                denom: "orai",
+                denom: input.denom,
                 amount: input.amount,
               },
             },
@@ -167,6 +168,7 @@ if (import.meta.vitest) {
         delegatorAddress: "orai1...",
         validatorAddress: "oraivaloper1...",
         amount: "1000000",
+        denom: "orai", // Added required denom field
         publicKey: "base64PublicKey",
       };
 
