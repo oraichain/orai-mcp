@@ -23,6 +23,7 @@ import {
   OraichainAccountTool,
   GetAllValidatorsInfoTool,
   OraichainTxHashInfoTool,
+  AutoCompoundTool,
 } from "@oraichain/agent-tools";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { oraichainRpcUrl, mnemonic } from "./config.js";
@@ -91,6 +92,7 @@ async function main() {
     const SIGNER_ACTIONS = [
       new OraichainSignTool(agentWithSigner),
       new OraichainAccountTool(agentWithSigner),
+      new AutoCompoundTool(agentWithSigner),
     ];
     ORAICHAIN_ACTIONS.push(...(SIGNER_ACTIONS as any));
   }
