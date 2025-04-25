@@ -23,8 +23,10 @@ import {
   GetDelegationsTool,
 } from "@oraichain/agent-tools";
 import { initLogger } from "./logger.js";
+import { StructuredTool } from "langchain/tools";
 const app = new HyperExpress.Server({ fast_buffers: true });
 const port = Number(serverPort);
+let ORAICHAIN_ACTIONS: StructuredTool[] = [];
 
 // Extend HyperExpress Response with writeHead
 declare module "hyper-express" {
@@ -37,7 +39,7 @@ declare module "hyper-express" {
 // Add writeHead method to HyperExpress Response since SSEServerTransport uses it internally
 HyperExpress.Response.prototype.writeHead = function (
   statusCodeOrName: number | string,
-  headersOrValue?: Record<string, string> | string | string[],
+  headersOrValue?: Record<string, string> | string | string[]
 ) {
   if (typeof statusCodeOrName === "number") {
     this.status(statusCodeOrName);
@@ -55,13 +57,12 @@ HyperExpress.Response.prototype.writeHead = function (
 };
 
 const sessions: Record<string, SSEServerTransport> = {};
-let server: McpServer;
 
 app.use(
   cors({
     origin: "*",
     credentials: false,
-  }),
+  })
 );
 
 app.use(async (req, res) => {
@@ -80,9 +81,10 @@ app.get("/", async (req, res) => {
 
 app.get("/sse", async (req, res) => {
   try {
-    if (!server) {
-      throw new Error("Server not initialized");
-    }
+    const server = createMcpServer(ORAICHAIN_ACTIONS, {
+      name: "oraichain-mcp-server",
+      version: "1.0.0",
+    });
 
     const connectionId = Date.now().toString();
     const transport = new SSEServerTransport("/messages", res as any);
@@ -155,32 +157,27 @@ app.post("/messages", async (req, res) => {
 
 async function main() {
   global.logger = initLogger("Oraichain MCP Server");
-  app.listen(port, "0.0.0.0", async () => {
-    try {
-      const agent = await OraichainAgentKit.connect(oraichainRpcUrl);
-      const ORAICHAIN_ACTIONS = [
-        new OraichainBalanceTool(agent),
-        new DelegateTool(agent),
-        new GetDelegationsTool(agent),
-        new GetValidatorInfoTool(agent),
-        new RedelegateTool(agent),
-        new UndelegateTool(agent),
-        new ClaimCommissionTool(agent),
-        new OraichainTokenTransferTool(agent),
-        new OraichainBroadcastTxTool(agent),
-        new OraichainBroadcastTxFromBytesTool(agent),
-        new OraichainBroadcastSignDocTool(agent),
-      ];
-
-      server = createMcpServer(ORAICHAIN_ACTIONS, {
-        name: "oraichain-mcp-server",
-        version: "0.0.5",
-      });
-      logger.info(`Server listening on port ${port}`);
-    } catch (error) {
-      logger.error("Server initialization failed:", error);
-      process.exit(1);
-    }
+  try {
+    const agent = await OraichainAgentKit.connect(oraichainRpcUrl);
+    ORAICHAIN_ACTIONS.push(
+      new OraichainBalanceTool(agent),
+      new DelegateTool(agent),
+      new GetDelegationsTool(agent),
+      new GetValidatorInfoTool(agent),
+      new RedelegateTool(agent),
+      new UndelegateTool(agent),
+      new ClaimCommissionTool(agent),
+      new OraichainTokenTransferTool(agent),
+      new OraichainBroadcastTxTool(agent),
+      new OraichainBroadcastTxFromBytesTool(agent),
+      new OraichainBroadcastSignDocTool(agent)
+    );
+  } catch (error) {
+    logger.error("Server initialization failed:", error);
+    process.exit(1);
+  }
+  app.listen(port, "0.0.0.0", () => {
+    logger.info(`Server listening on port ${port}`);
   });
 }
 
