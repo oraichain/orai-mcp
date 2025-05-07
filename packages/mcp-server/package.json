@@ -32,12 +32,12 @@
     "dotenv": "^16.4.7",
     "hyper-express": "^6.17.3",
     "langchain": "^0.3.19",
+    "ultimate-express": "^1.4.9",
     "winston": "^3.17.0",
     "winston-transport": "^4.9.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
     "@cosmjs/amino": "^0.32.4",
     "@cosmjs/cosmwasm-stargate": "^0.32.4",
     "@cosmjs/crypto": "^0.32.4",
@@ -48,6 +48,7 @@
     "@langchain/langgraph": "^0.2.57",
     "@langchain/mistralai": "^0.2.0",
     "@oraichain/common": "^1.2.10",
+    "@types/cors": "^2.8.17",
     "cosmjs-types": "^0.9.0",
     "eslint": "^9.21.0",
     "globals": "^13.24.0",

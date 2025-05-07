@@ -7,7 +7,6 @@ import { IncomingMessage } from "http";
 import { OraichainAgentKit } from "@oraichain/agent-kit";
 import { createMcpServer } from "./mcpServer.js";
 import { oraichainRpcUrl, serverPort } from "./config.js";
-import HyperExpress from "hyper-express";
 import cors from "cors";
 import {
   OraichainBalanceTool,
@@ -24,40 +23,10 @@ import {
 } from "@oraichain/agent-tools";
 import { initLogger } from "./logger.js";
 import { StructuredTool } from "langchain/tools";
-const app = new HyperExpress.Server({ fast_buffers: true });
-const port = Number(serverPort);
-let ORAICHAIN_ACTIONS: StructuredTool[] = [];
+import express from "ultimate-express";
 
-// Extend HyperExpress Response with writeHead
-declare module "hyper-express" {
-  interface Response {
-    writeHead(name: string, value: string | string[]): Response;
-    writeHead(statusCode: number, headers?: Record<string, string>): Response;
-  }
-}
-
-// Add writeHead method to HyperExpress Response since SSEServerTransport uses it internally
-HyperExpress.Response.prototype.writeHead = function (
-  statusCodeOrName: number | string,
-  headersOrValue?: Record<string, string> | string | string[]
-) {
-  if (typeof statusCodeOrName === "number") {
-    this.status(statusCodeOrName);
-    if (
-      headersOrValue &&
-      typeof headersOrValue === "object" &&
-      !Array.isArray(headersOrValue)
-    ) {
-      this.set(headersOrValue);
-    }
-  } else {
-    this.set(statusCodeOrName, headersOrValue as string | string[]);
-  }
-  return this;
-};
-
-const sessions: Record<string, SSEServerTransport> = {};
-
+const app = express();
+app.use(express.json());
 app.use(
   cors({
     origin: "*",
@@ -65,15 +34,10 @@ app.use(
   })
 );
 
-app.use(async (req, res) => {
-  // if json post
-  if (
-    req.method === "POST" &&
-    req.headers["content-type"] === "application/json"
-  ) {
-    req.body = await req.json();
-  }
-});
+const port = Number(serverPort);
+let ORAICHAIN_ACTIONS: StructuredTool[] = [];
+
+const sessions: Record<string, SSEServerTransport> = {};
 
 app.get("/", async (req, res) => {
   res.json("Success!!");
